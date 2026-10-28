@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit(~/Documents/claude-config/**)",
+      "Edit(~/StudioProjects/claude-tooling/**)"
+    ],
+    "additionalDirectories": [
+      "~/Documents/claude-config",
+      "~/StudioProjects/claude-tooling"
+    ]
+  },
+  "model": "opus[1m]",
+  "effortLevel": "medium",
+  "enableWorkflows": true
+}

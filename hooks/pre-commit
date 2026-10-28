@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+#
+# Защита от утечек: блокирует коммит, если в индексе (имена файлов и содержимое)
+# находится что-то из общих паттернов hooks/leak-patterns, личных
+# $CLAUDE_DATA/.leak-patterns, адрес e-mail не GitHub noreply, или автор коммита
+# не на noreply.
+#
+# Подключение (раз на клон): git config core.hooksPath hooks
+# Скан всего дерева, а не индекса: hooks/pre-commit --all
+#
+set -uo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+DATA="${CLAUDE_DATA:-$HOME/Documents/claude-config}"
+GENERIC="$ROOT/hooks/leak-patterns"
+PERSONAL="$DATA/.leak-patterns"
+SELF_EXCLUDE="hooks/leak-patterns"
+EMAIL_RE='[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+[.][A-Za-z]{2,}'
+NOREPLY_RE='(^|[:@.])noreply@|@users[.]noreply[.]github[.]com$'
+
+mode="index"
+[[ "${1:-}" == "--all" ]] && mode="all"
+
+patterns="$(mktemp)"
+trap 'rm -f "$patterns"' EXIT
+# Пустая строка в grep -f совпадает со всем — комментарии и пустые убираем.
+grep -hvE '^[[:space:]]*(#|$)' "$GENERIC" >"$patterns"
+if [[ -r "$PERSONAL" ]]; then
+  grep -hvE '^[[:space:]]*(#|$)' "$PERSONAL" >>"$patterns"
+else
+  echo "pre-commit: нет личных паттернов ($PERSONAL) — проверяю только общие" >&2
+fi
+
+found=0
+report() { echo "  $1"; found=1; }
+
+if [[ "$mode" == "index" ]]; then
+  files="$(git diff --cached --name-only --diff-filter=ACMR)"
+  show() { git show ":$1"; }
+else
+  files="$(git -C "$ROOT" ls-files --cached --others --exclude-standard)"
+  show() { cat "$ROOT/$1"; }
+fi
+
+while IFS= read -r f; do
+  [[ -n "$f" ]] || continue
+  if hit="$(printf '%s\n' "$f" | grep -iEf "$patterns")"; then
+    report "имя файла: $f"
+  fi
+  [[ "$f" == "$SELF_EXCLUDE" ]] && continue
+  content="$(show "$f")" || continue
+  while IFS= read -r line; do
+    [[ -n "$line" ]] && report "$f:$line"
+  done < <(printf '%s\n' "$content" | grep -niEf "$patterns")
+  while IFS= read -r line; do
+    [[ -n "$line" ]] && report "$f:$line (e-mail)"
+  done < <(printf '%s\n' "$content" | grep -noE "$EMAIL_RE" | grep -viE "$NOREPLY_RE")
+done <<<"$files"
+
+author="$(git var GIT_AUTHOR_IDENT 2>/dev/null | sed -E 's/.*<([^>]*)>.*/\1/')"
+if [[ ! "$author" =~ @users\.noreply\.github\.com$ ]]; then
+  report "автор коммита: <$author> — нужен GitHub noreply (git config user.email)"
+fi
+
+if (( found )); then
+  echo "pre-commit: найдены возможные утечки — исправь до коммита (выше)." >&2
+  exit 1
+fi
+[[ "$mode" == "all" ]] && echo "pre-commit: утечек не найдено ($(wc -l <<<"$files" | tr -d ' ') файлов)."
+exit 0

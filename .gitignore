@@ -1,0 +1,25 @@
+# Allowlist: в индекс попадает только явно разрешённое. Новый путь верхнего
+# уровня — добавить сюда строкой с `!`.
+/*
+!/.gitignore
+!/README.md
+!/CLAUDE.md
+!/link.sh
+!/home/
+!/projects/
+!/memory/
+!/decisions/
+!/hooks/
+
+# Внутри разрешённых каталогов — только то, что тулинг.
+/home/*
+!/home/CLAUDE.md
+!/home/settings.json
+/projects/*
+!/projects/_template/
+/memory/*
+!/memory/_template/
+
+.DS_Store
+*.bak
+*.orig
