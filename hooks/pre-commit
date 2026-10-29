@@ -2,8 +2,8 @@
 #
 # Защита от утечек: блокирует коммит, если в индексе (имена файлов и содержимое)
 # находится что-то из общих паттернов hooks/leak-patterns, личных
-# $CLAUDE_DATA/.leak-patterns, адрес e-mail не GitHub noreply, или автор коммита
-# не на noreply.
+# $CLAUDE_DATA/.leak-patterns или чужой адрес e-mail (свой — git config user.email — и
+# noreply можно: авторство не скрываем, прячем проектную специфику вроде рабочих адресов).
 #
 # Подключение (раз на клон): git config core.hooksPath hooks
 # Скан всего дерева, а не индекса: hooks/pre-commit --all
@@ -17,6 +17,7 @@ PERSONAL="$DATA/.leak-patterns"
 SELF_EXCLUDE="hooks/leak-patterns"
 EMAIL_RE='[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+[.][A-Za-z]{2,}'
 NOREPLY_RE='(^|[:@.])noreply@|@users[.]noreply[.]github[.]com$'
+OWN_EMAIL="$(git config user.email 2>/dev/null || true)"
 
 mode="index"
 [[ "${1:-}" == "--all" ]] && mode="all"
@@ -54,13 +55,8 @@ while IFS= read -r f; do
   done < <(printf '%s\n' "$content" | grep -niEf "$patterns")
   while IFS= read -r line; do
     [[ -n "$line" ]] && report "$f:$line (e-mail)"
-  done < <(printf '%s\n' "$content" | grep -noE "$EMAIL_RE" | grep -viE "$NOREPLY_RE")
+  done < <(printf '%s\n' "$content" | grep -noE "$EMAIL_RE" | grep -viE "$NOREPLY_RE" | grep -viF ":${OWN_EMAIL:-<none>}")
 done <<<"$files"
-
-author="$(git var GIT_AUTHOR_IDENT 2>/dev/null | sed -E 's/.*<([^>]*)>.*/\1/')"
-if [[ ! "$author" =~ @users\.noreply\.github\.com$ ]]; then
-  report "автор коммита: <$author> — нужен GitHub noreply (git config user.email)"
-fi
 
 if (( found )); then
   echo "pre-commit: найдены возможные утечки — исправь до коммита (выше)." >&2
