@@ -11,8 +11,9 @@ it via symlinks. This repo is the **tooling** root (git). Per-project content �
 **data** root, `$CLAUDE_DATA` (default `~/Documents/claude-config`), which has no git and is
 synced (or not) however its owner likes.
 
-Treat this repo as public: nothing that identifies an employer, a project, a person, a
-host, a machine, internal addresses or keys goes in — not even in history.
+Keep this repo project-independent, not anonymous: nothing that identifies an employer, a
+project, a host, a machine, internal addresses or keys goes in — not even in history. The
+owner's name and e-mail are fine (commit authorship, the own address in content).
 
 ## Layout
 
@@ -51,8 +52,8 @@ Test `--init` against a temp dir: `CLAUDE_DATA=$(mktemp -d) ./link.sh --init <tm
 - `.gitignore` is an allowlist (`/*`, then `!` per allowed path). Adding a top-level file
   means adding it there.
 - `hooks/pre-commit` greps staged content against `hooks/leak-patterns` (generic: home
-  paths, private keys, `.lan` hosts, RFC1918 addresses, non-noreply author e-mail) and
-  `$CLAUDE_DATA/.leak-patterns` (personal: names, projects, hosts — kept out of the repo on
+  paths, private keys, `.lan` hosts, RFC1918 addresses, e-mail other than noreply or your own `user.email`) and
+  `$CLAUDE_DATA/.leak-patterns` (personal: projects, hosts — kept out of the repo on
   purpose, since the list itself would leak). A hit blocks the commit; fix, don't bypass.
 
 ## Editing conventions
