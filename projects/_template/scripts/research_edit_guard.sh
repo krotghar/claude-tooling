@@ -2,8 +2,9 @@
 #
 # PreToolUse-хук research-агентов (bug-investigator): Edit/Write/NotebookEdit
 # разрешены только внутри их воркtree <главный-воркtree>-research-* (рядом с главным
-# воркtree проекта) и во временном каталоге сессии. Всё остальное (в т.ч. основной
-# checkout) — блок.
+# воркtree проекта) и во временных каталогах сессии: /tmp/claude-* (scratchpad
+# Claude Code) и $TMPDIR (другие харнессы пишут туда). Остальной /tmp, основной
+# checkout и всё прочее — блок.
 #
 set -euo pipefail
 
@@ -20,6 +21,9 @@ if not raw:
 path = os.path.realpath(os.path.expanduser(raw))
 main = os.environ.get("MAIN_WORKTREE", "")
 allowed = [r"/(private/)?tmp/claude-[^/]+/"]
+tmpdir = os.environ.get("TMPDIR", "")
+if tmpdir:
+    allowed.append(re.escape(os.path.realpath(tmpdir).rstrip("/")) + "/")
 if main:
     allowed.append(re.escape(os.path.realpath(main)) + r"-research-[^/]+/")
 if any(re.match(pattern, path) for pattern in allowed):
