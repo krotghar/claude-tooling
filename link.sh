@@ -172,7 +172,6 @@ link_worktree() {
   link_one "$proj_dir/agents" "$worktree/.claude/agents"
   link_one "$proj_dir/scripts" "$worktree/.claude/scripts"
   link_one "$proj_dir/settings.json" "$worktree/.claude/settings.json"
-
   for rel in CLAUDE.md AGENTS.md .claude/skills .claude/agents .claude/scripts .claude/settings.json; do
     ensure_excluded "$worktree" "$rel"
   done
