@@ -65,8 +65,6 @@ ensure_excluded() {
 link_home() {
   echo "Домашние симлинки:"
   link_one "$TOOLING/home/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-  # Глобальный AGENTS.md (читает Cline и др.) — те же инструкции.
-  link_one "$TOOLING/home/CLAUDE.md" "$HOME/.agents/AGENTS.md"
 
   local fish_file
   for fish_file in "$DATA/fish"/*.fish; do
@@ -165,14 +163,12 @@ link_worktree() {
 
   echo "Проектные симлинки в $worktree (обвязка: $proj_name):"
   link_one "$proj_dir/CLAUDE.md" "$worktree/CLAUDE.md"
-  # AGENTS.md (https://agents.md/) — те же инструкции для остальных агентов.
-  link_one "$proj_dir/CLAUDE.md" "$worktree/AGENTS.md"
   mkdir -p "$worktree/.claude"
   link_one "$proj_dir/skills" "$worktree/.claude/skills"
   link_one "$proj_dir/agents" "$worktree/.claude/agents"
   link_one "$proj_dir/scripts" "$worktree/.claude/scripts"
   link_one "$proj_dir/settings.json" "$worktree/.claude/settings.json"
-  for rel in CLAUDE.md AGENTS.md .claude/skills .claude/agents .claude/scripts .claude/settings.json; do
+  for rel in CLAUDE.md .claude/skills .claude/agents .claude/scripts .claude/settings.json; do
     ensure_excluded "$worktree" "$rel"
   done
 }

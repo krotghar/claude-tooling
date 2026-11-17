@@ -10,3 +10,6 @@
 
 ## [2026-10-31] tooling-data-layout | репозиторий публичный, MIT (решение 7)
 Перед `--visibility public` — скан утечек по всей истории и PR-рефам. В истории нашлись следы приватного проекта — репо пересоздан с историей без них, старый — private `claude-tooling-old`. Добавлены `LICENSE` (MIT) и строка в allowlist `.gitignore`.
+
+## [2026-11-17] tooling-data-layout | убраны AGENTS.md-симлинки из link.sh (решение 8)
+Других агентов, кроме Claude Code, больше нет. Из `link.sh` удалены глобальный `~/.agents/AGENTS.md` (`--home`) и `AGENTS.md` в воркtree. Подробно — в журнале данных.

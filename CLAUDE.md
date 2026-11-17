@@ -17,7 +17,7 @@ owner's name and e-mail are fine (commit authorship, the own address in content)
 
 ## Layout
 
-- `home/CLAUDE.md` → `~/.claude/CLAUDE.md` and `~/.agents/AGENTS.md` — global instructions.
+- `home/CLAUDE.md` → `~/.claude/CLAUDE.md` — global instructions.
 - `home/settings.json` — neutral template for `~/.claude/settings.json`; not linked, compare
   by hand. Its `additionalDirectories` must cover both roots.
 - `projects/_template/`, `memory/_template/` — never linked (`link.sh` skips `_*`). A new
