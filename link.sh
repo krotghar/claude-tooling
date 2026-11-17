@@ -65,6 +65,8 @@ ensure_excluded() {
 link_home() {
   echo "Домашние симлинки:"
   link_one "$TOOLING/home/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+  # Личные правила — из данных; глобальный CLAUDE.md подключает их импортом.
+  [[ -f "$DATA/home/CLAUDE.md" ]] && link_one "$DATA/home/CLAUDE.md" "$HOME/.claude/CLAUDE.personal.md"
 
   local fish_file
   for fish_file in "$DATA/fish"/*.fish; do

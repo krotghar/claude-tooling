@@ -13,3 +13,7 @@
 
 ## [2026-11-17] tooling-data-layout | убраны AGENTS.md-симлинки из link.sh (решение 8)
 Других агентов, кроме Claude Code, больше нет. Из `link.sh` удалены глобальный `~/.agents/AGENTS.md` (`--home`) и `AGENTS.md` в воркtree. Подробно — в журнале данных.
+
+
+## [2026-11-17] tooling-data-layout | личные правила — импортом из данных (решение 9)
+Глобальный `CLAUDE.md` в конце импортирует `~/.claude/CLAUDE.personal.md`; `link.sh --home` линкует туда `$CLAUDE_DATA/home/CLAUDE.md`, если он есть.
