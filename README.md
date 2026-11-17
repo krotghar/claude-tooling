@@ -12,7 +12,7 @@ Syncthing, никак) — решает владелец данных, тули�
 
 Из тулинга:
 
-- `home/CLAUDE.md` → `~/.claude/CLAUDE.md` и `~/.agents/AGENTS.md` (глобальный AGENTS.md — читает Cline)
+- `home/CLAUDE.md` → `~/.claude/CLAUDE.md`
 - `home/settings.json` — шаблон `~/.claude/settings.json` (не линкуется, сверять руками)
 - `projects/_template/`, `memory/_template/` — заготовки нового проекта, никуда не линкуются
 
@@ -21,7 +21,7 @@ Syncthing, никак) — решает владелец данных, тули�
 - `home/skills/<скилл>/` → `~/.claude/skills/<скилл>` — личные скиллы
 - `fish/*.fish` → `~/.config/fish/functions/`
 - `memory/<Проект>/` → `~/.claude/projects/<ключ-проекта>/memory/`
-- `projects/<Проект>/CLAUDE.md` → `<worktree>/CLAUDE.md` и `<worktree>/AGENTS.md` ([agents.md](https://agents.md/) — для остальных агентов)
+- `projects/<Проект>/CLAUDE.md` → `<worktree>/CLAUDE.md`
 - `projects/<Проект>/skills/` → `<worktree>/.claude/skills`
 - `projects/<Проект>/agents/` → `<worktree>/.claude/agents`
 - `projects/<Проект>/scripts/` → `<worktree>/.claude/scripts`
