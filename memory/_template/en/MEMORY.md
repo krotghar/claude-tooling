@@ -1,0 +1,9 @@
+- [Bar for code comments](feedback_code_comments_bar.md) — no comment by default; only when the code can't be understood without one
+- [Don't harden corrections into rules](feedback_dont_harden_corrections.md) — an in-the-moment correction is a default; absolutes only on explicit request
+- [Questions in full sentences](feedback_no_compressed_questions.md) — context → current state → options → recommendation, not telegraphic style
+- [Don't suggest comments in review](feedback_no_explanatory_comments_in_review.md) — don't raise explanatory comments or contract docs as findings
+- [Research: simple first](feedback_research_tasks_keep_simple.md) — a rough quick result; more rigorous methodology only on "yes"
+- [Review findings are the user's call](feedback_review_findings_need_approval.md) — show them and stop; don't apply fixes yourself
+- [Verification via a subagent](feedback_verification_via_subagent.md) — build/tests/lint not in the main session; forbid file edits in the task
+- [The wiki is my memory, I maintain it](feedback_wiki_self_maintained.md) — update stale content in wiki/tasks right away, without proposing
+- [Plan → approval → execution → verification](feedback_workflow_plan_then_execute.md) — substantial tasks in four phases

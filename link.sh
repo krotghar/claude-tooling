@@ -4,25 +4,70 @@
 # (проектные). Идемпотентен — можно гонять повторно на уже размеченном месте.
 #
 # Два корня:
-#   тулинг — каталог этого скрипта (git): home/CLAUDE.md, шаблоны;
+#   тулинг — каталог этого скрипта (git): home/<язык>/, шаблоны;
 #   данные — $CLAUDE_DATA (без git): projects/<П>/, memory/<П>/, home/skills/*,
-#            fish/*.fish.
-# Главные воркtree проектов лежат в $CLAUDE_PROJECTS/<П> — от этого пути
-# считается ключ памяти в ~/.claude/projects/.
+#            home/CLAUDE.md, fish/*.fish.
+#
+# Настройки — переменные окружения или файл local.env рядом со скриптом (его пишет
+# инсталлятор, в git он не попадает):
+#   CLAUDE_DATA          корень данных (по умолчанию ~/Documents/claude-config)
+#   CLAUDE_TOOLING_LANG  язык шаблонов: ru | en (по умолчанию ru)
+#   CLAUDE_PROJECTS      где лежат главные воркtree — нужен только --home, чтобы
+#                        перелинковать память проектов (по умолчанию ~/StudioProjects)
 #
 # Использование:
 #   link.sh --home
 #   link.sh <путь-к-воркtree>
-#   link.sh --init <путь-к-воркtree>   # нет обвязки проекта — завести из projects/_template
+#   link.sh --init <путь-к-воркtree>   # нет обвязки проекта — завести из шаблона
 #
 # Папки с `_` в начале имени (projects/_template, memory/_template) — заготовки,
 # а не проекты: их не линкуем.
 #
+# Windows: запускать из Git Bash. Симлинки там нативные (нужен Developer Mode или
+# права администратора); без них скрипт падает, а не копирует файлы молча.
+#
 set -euo pipefail
 
 TOOLING="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# local.env — дефолты; заданные в окружении переменные берут верх.
+if [[ -f "$TOOLING/local.env" ]]; then
+  env_data="${CLAUDE_DATA:-}" env_projects="${CLAUDE_PROJECTS:-}" env_lang="${CLAUDE_TOOLING_LANG:-}"
+  # shellcheck source=/dev/null
+  source "$TOOLING/local.env"
+  CLAUDE_DATA="${env_data:-${CLAUDE_DATA:-}}"
+  CLAUDE_PROJECTS="${env_projects:-${CLAUDE_PROJECTS:-}}"
+  CLAUDE_TOOLING_LANG="${env_lang:-${CLAUDE_TOOLING_LANG:-}}"
+fi
 DATA="${CLAUDE_DATA:-$HOME/Documents/claude-config}"
 PROJECTS="${CLAUDE_PROJECTS:-$HOME/StudioProjects}"
+TOOLING_LANG="${CLAUDE_TOOLING_LANG:-ru}"
+
+if [[ ! -d "$TOOLING/home/$TOOLING_LANG" ]]; then
+  echo "link.sh: unknown CLAUDE_TOOLING_LANG='$TOOLING_LANG' (no $TOOLING/home/$TOOLING_LANG)" >&2
+  exit 1
+fi
+
+IS_WINDOWS=""
+case "$(uname -s)" in
+  MINGW* | MSYS* | CYGWIN*)
+    IS_WINDOWS=1
+    export MSYS=winsymlinks:nativestrict CYGWIN=winsymlinks:nativestrict
+    ;;
+esac
+
+# Путь из git (на Windows вида C:/x/y) → путь для операций с файлами (/c/x/y).
+to_posix() {
+  if [[ -n "$IS_WINDOWS" ]]; then cygpath -u "$1"; else echo "$1"; fi
+}
+
+# Ключ проекта в ~/.claude/projects/ — так его считает Claude Code: абсолютный путь
+# главного воркtree, все символы кроме [A-Za-z0-9] заменены на '-'. На Windows путь
+# берётся в форме C:/x/y.
+memory_key() {
+  local path="$1"
+  [[ -n "$IS_WINDOWS" ]] && path="$(cygpath -m "$path")"
+  echo "$path" | sed 's/[^A-Za-z0-9]/-/g'
+}
 
 # Существующий реальный файл/каталог на месте цели не затираем молча —
 # переименовываем в .bak рядом и говорим об этом.
@@ -38,7 +83,7 @@ link_one() {
     rm "$link_name"
   elif [[ -e "$link_name" ]]; then
     local bak="${link_name}.bak"
-    echo "  бэкап реального файла: $link_name -> $bak"
+    echo "  backup of a real file: $link_name -> $bak"
     mv "$link_name" "$bak"
   fi
   mkdir -p "$(dirname "$link_name")"
@@ -52,7 +97,10 @@ ensure_excluded() {
   local worktree="$1" rel="$2"
   local common_dir
   common_dir="$(git -C "$worktree" rev-parse --git-common-dir 2>/dev/null)" || return 0
-  [[ "$common_dir" = /* ]] || common_dir="$worktree/$common_dir"
+  case "$common_dir" in
+    /* | [A-Za-z]:/*) common_dir="$(to_posix "$common_dir")" ;;
+    *) common_dir="$worktree/$common_dir" ;;
+  esac
   local exclude_file="$common_dir/info/exclude"
   mkdir -p "$(dirname "$exclude_file")"
   touch "$exclude_file"
@@ -63,8 +111,8 @@ ensure_excluded() {
 }
 
 link_home() {
-  echo "Домашние симлинки:"
-  link_one "$TOOLING/home/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+  echo "Home symlinks (language: $TOOLING_LANG):"
+  link_one "$TOOLING/home/$TOOLING_LANG/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
   # Личные правила — из данных; глобальный CLAUDE.md подключает их импортом.
   [[ -f "$DATA/home/CLAUDE.md" ]] && link_one "$DATA/home/CLAUDE.md" "$HOME/.claude/CLAUDE.personal.md"
 
@@ -74,21 +122,25 @@ link_home() {
     link_one "$fish_file" "$HOME/.config/fish/functions/$(basename "$fish_file")"
   done
 
-  # Личные скиллы — поштучно: ~/.claude/skills уже занят каталогом приложения.
-  for skill_dir in "$DATA/home/skills"/*/; do
+  # Скиллы — поштучно: ~/.claude/skills уже занят каталогом приложения. Сначала
+  # скиллы тулинга, потом личные из данных.
+  local skill_dir
+  for skill_dir in "$TOOLING/home/$TOOLING_LANG/skills"/*/ "$DATA/home/skills"/*/; do
     [[ -d "$skill_dir" ]] || continue
     link_one "${skill_dir%/}" "$HOME/.claude/skills/$(basename "$skill_dir")"
   done
 
+  # Память проектов, чей главный воркtree лежит в $CLAUDE_PROJECTS. Проекты в других
+  # местах линкуют память сами, при `link.sh <воркtree>`.
   if [[ -d "$DATA/memory" ]]; then
+    local proj_dir proj_name main_worktree
     for proj_dir in "$DATA/memory"/*/; do
       [[ -d "$proj_dir" ]] || continue
-      local proj_name main_worktree key
       proj_name="$(basename "$proj_dir")"
       [[ "$proj_name" == _* ]] && continue
       main_worktree="$PROJECTS/$proj_name"
-      key="$(echo "$main_worktree" | tr '/._' '-')"
-      link_one "${proj_dir%/}" "$HOME/.claude/projects/$key/memory"
+      [[ -d "$main_worktree" ]] || continue
+      link_one "${proj_dir%/}" "$HOME/.claude/projects/$(memory_key "$main_worktree")/memory"
     done
   fi
 }
@@ -104,13 +156,13 @@ home_form() {
   fi
 }
 
-# Новая обвязка проекта — копия (не симлинк) projects/_template, дальше проект
+# Новая обвязка проекта — копия (не симлинк) projects/_template/<язык>, дальше проект
 # специализирует её у себя. В файлах шаблона <Project> заменяется на имя проекта,
 # <DataRoot> — на корень данных, <ToolingRoot> — на корень тулинга.
 init_project() {
   local proj_name="$1" proj_dir="$2"
-  local tpl="$TOOLING/projects/_template"
-  echo "Обвязка '$proj_name' из шаблона:"
+  local tpl="$TOOLING/projects/_template/$TOOLING_LANG"
+  echo "Project setup '$proj_name' from template ($TOOLING_LANG):"
   mkdir -p "$(dirname "$proj_dir")"
   cp -R "$tpl" "$proj_dir"
 
@@ -119,23 +171,30 @@ init_project() {
     mkdir -p "$proj_dir/$area/pages"
     mv "$proj_dir/$area-CLAUDE.md" "$proj_dir/$area/CLAUDE.md"
   done
-  printf '# Index\n\nКаталог страниц wiki проекта %s. Схема — `CLAUDE.md` рядом.\n' \
-    "$proj_name" >"$proj_dir/wiki/index.md"
-  printf '# Log\n\n## [%s] ingest | Заведена wiki\nСхема из шаблона. Страниц пока нет.\n' \
-    "$(date +%F)" >"$proj_dir/wiki/log.md"
-  printf '# Tasks index\n\nКаталог документов по задачам проекта %s. Схема — [CLAUDE.md](CLAUDE.md), журнал — [log.md](log.md).\n' \
-    "$proj_name" >"$proj_dir/tasks/index.md"
+  local today
+  today="$(date +%F)"
+  if [[ "$TOOLING_LANG" == ru ]]; then
+    printf '# Index\n\nКаталог страниц wiki проекта %s. Схема — `CLAUDE.md` рядом.\n' "$proj_name" >"$proj_dir/wiki/index.md"
+    printf '# Log\n\n## [%s] ingest | Заведена wiki\nСхема из шаблона. Страниц пока нет.\n' "$today" >"$proj_dir/wiki/log.md"
+    printf '# Tasks index\n\nКаталог документов по задачам проекта %s. Схема — [CLAUDE.md](CLAUDE.md), журнал — [log.md](log.md).\n' "$proj_name" >"$proj_dir/tasks/index.md"
+  else
+    printf '# Index\n\nCatalog of wiki pages for project %s. Schema — `CLAUDE.md` next to this file.\n' "$proj_name" >"$proj_dir/wiki/index.md"
+    printf '# Log\n\n## [%s] ingest | Wiki created\nSchema from the template. No pages yet.\n' "$today" >"$proj_dir/wiki/log.md"
+    printf '# Tasks index\n\nCatalog of task documents for project %s. Schema — [CLAUDE.md](CLAUDE.md), log — [log.md](log.md).\n' "$proj_name" >"$proj_dir/tasks/index.md"
+  fi
   printf '# Tasks log\n' >"$proj_dir/tasks/log.md"
 
-  local data_root tooling_root
+  local data_root tooling_root f
   data_root="$(home_form "$DATA")"
   tooling_root="$(home_form "$TOOLING")"
+  # Без sed -i: у BSD и GNU sed он несовместим.
   grep -rlE '<Project>|<DataRoot>|<ToolingRoot>' "$proj_dir" | while IFS= read -r f; do
-    sed -i '' -e "s|<Project>|$proj_name|g" -e "s|<DataRoot>|$data_root|g" \
-      -e "s|<ToolingRoot>|$tooling_root|g" "$f"
+    sed -e "s|<Project>|$proj_name|g" -e "s|<DataRoot>|$data_root|g" \
+      -e "s|<ToolingRoot>|$tooling_root|g" "$f" >"$f.tmp"
+    cat "$f.tmp" >"$f" && rm "$f.tmp"
   done
-  date +%F >"$proj_dir/.template-origin"
-  echo "  создано: $proj_dir"
+  printf '%s %s\n' "$today" "$TOOLING_LANG" >"$proj_dir/.template-origin"
+  echo "  created: $proj_dir"
 }
 
 link_worktree() {
@@ -143,27 +202,29 @@ link_worktree() {
   worktree="$(cd "$worktree" && pwd)"
 
   local main_worktree
-  main_worktree="$(git -C "$worktree" worktree list --porcelain | awk '/^worktree /{print $2; exit}')"
+  main_worktree="$(git -C "$worktree" worktree list --porcelain | awk '/^worktree /{sub(/^worktree /, ""); print; exit}')"
   if [[ -z "$main_worktree" ]]; then
-    echo "link.sh: не удалось определить главный воркtree для $worktree" >&2
+    echo "link.sh: cannot find the main worktree for $worktree (not a git repository?)" >&2
     exit 1
   fi
+  main_worktree="$(to_posix "$main_worktree")"
 
-  local proj_name="$(basename "$main_worktree")"
-  local proj_dir="$DATA/projects/$proj_name"
+  local proj_name proj_dir
+  proj_name="$(basename "$main_worktree")"
+  proj_dir="$DATA/projects/$proj_name"
   if [[ "$proj_name" == _* ]]; then
-    echo "link.sh: '$proj_name' — имя заготовки, не проекта" >&2
+    echo "link.sh: '$proj_name' is a template name, not a project" >&2
     exit 1
   fi
   if [[ ! -d "$proj_dir" ]]; then
     if [[ -z "$init" ]]; then
-      echo "link.sh: нет обвязки под проект '$proj_name' в $DATA/projects/ (завести из шаблона: link.sh --init $worktree)" >&2
+      echo "link.sh: no project setup for '$proj_name' in $DATA/projects/ (create from template: link.sh --init $worktree)" >&2
       exit 1
     fi
     init_project "$proj_name" "$proj_dir"
   fi
 
-  echo "Проектные симлинки в $worktree (обвязка: $proj_name):"
+  echo "Project symlinks in $worktree (setup: $proj_name):"
   link_one "$proj_dir/CLAUDE.md" "$worktree/CLAUDE.md"
   # AGENTS.md (https://agents.md/) — те же инструкции для остальных агентов.
   link_one "$proj_dir/CLAUDE.md" "$worktree/AGENTS.md"
@@ -172,9 +233,15 @@ link_worktree() {
   link_one "$proj_dir/agents" "$worktree/.claude/agents"
   link_one "$proj_dir/scripts" "$worktree/.claude/scripts"
   link_one "$proj_dir/settings.json" "$worktree/.claude/settings.json"
+  local rel
   for rel in CLAUDE.md AGENTS.md .claude/skills .claude/agents .claude/scripts .claude/settings.json; do
     ensure_excluded "$worktree" "$rel"
   done
+
+  # Память — по реальному пути главного воркtree, где бы он ни лежал.
+  if [[ -d "$DATA/memory/$proj_name" ]]; then
+    link_one "$DATA/memory/$proj_name" "$HOME/.claude/projects/$(memory_key "$main_worktree")/memory"
+  fi
 }
 
 case "${1:-}" in
@@ -182,11 +249,11 @@ case "${1:-}" in
     link_home
     ;;
   --init)
-    [[ -n "${2:-}" ]] || { echo "Использование: link.sh --init <путь-к-воркtree>" >&2; exit 1; }
+    [[ -n "${2:-}" ]] || { echo "Usage: link.sh --init <worktree-path>" >&2; exit 1; }
     link_worktree "$2" init
     ;;
   "")
-    echo "Использование: link.sh --home | link.sh [--init] <путь-к-воркtree>" >&2
+    echo "Usage: link.sh --home | link.sh [--init] <worktree-path>" >&2
     exit 1
     ;;
   *)

@@ -8,18 +8,42 @@
 `~/Documents/claude-config`) и в git не попадают. Как синкать данные между машинами (iCloud,
 Syncthing, никак) — решает владелец данных, тулинг этого не обещает.
 
+## Установка
+
+```bash
+git clone <этот репозиторий> && cd claude-tooling
+claude "Install the tooling following INSTALL.md"
+```
+
+[`INSTALL.md`](INSTALL.md) — промпт-инсталлятор: спросит язык шаблонов (`ru`/`en`) и где
+держать данные, перенесёт существующий `~/.claude/CLAUDE.md` в личные правила, пропишет
+`additionalDirectories`, слинкует и подключит первый проект. Следующие проекты —
+`/onboard-project` в новой сессии. `/tooling-review` разбирает историю сессий проекта и
+предлагает правки обвязки (сам ничего не применяет).
+
+Windows — через Git Bash (он и так нужен Claude Code) с включённым Developer Mode: `link.sh`
+создаёт нативные симлинки и без прав падает, а не копирует файлы.
+
+## Языки
+
+`home/`, `projects/_template/`, `memory/_template/` — в двух деревьях, `ru/` и `en/`. RU —
+источник, EN — перевод: меняешь RU — обнови EN. Язык выбирается при установке
+(`CLAUDE_TOOLING_LANG`, по умолчанию `ru`).
+
 ## Раскладка
 
 Из тулинга:
 
-- `home/CLAUDE.md` → `~/.claude/CLAUDE.md`
+- `home/<язык>/CLAUDE.md` → `~/.claude/CLAUDE.md`
+- `home/<язык>/skills/<скилл>/` → `~/.claude/skills/<скилл>` — `onboard-project`, `tooling-review`
 - `home/settings.json` — шаблон `~/.claude/settings.json` (не линкуется, сверять руками)
-- `projects/_template/`, `memory/_template/` — заготовки нового проекта, никуда не линкуются
+- `projects/_template/<язык>/`, `memory/_template/<язык>/` — заготовки нового проекта, никуда не линкуются
 
 Из данных (`$CLAUDE_DATA`):
 
 - `home/skills/<скилл>/` → `~/.claude/skills/<скилл>` — личные скиллы
 - `fish/*.fish` → `~/.config/fish/functions/`
+- `home/CLAUDE.md` → `~/.claude/CLAUDE.personal.md` — личные правила, глобальный `CLAUDE.md` импортирует их
 - `memory/<Проект>/` → `~/.claude/projects/<ключ-проекта>/memory/`
 - `projects/<Проект>/CLAUDE.md` → `<worktree>/CLAUDE.md` и `<worktree>/AGENTS.md` ([agents.md](https://agents.md/) — для остальных агентов)
 - `projects/<Проект>/skills/` → `<worktree>/.claude/skills`
@@ -27,8 +51,10 @@ Syncthing, никак) — решает владелец данных, тули�
 - `projects/<Проект>/scripts/` → `<worktree>/.claude/scripts`
 - `projects/<Проект>/settings.json` → `<worktree>/.claude/settings.json`
 
-Ключ памяти считается от главного воркtree `$CLAUDE_PROJECTS/<Проект>` (по умолчанию
-`~/StudioProjects`). Имена в данных без ведущей точки — так их видно в Finder; точку
+Ключ памяти считается от реального пути главного воркtree при `link.sh <воркtree>`;
+`--home` перелинковывает память только проектов, лежащих в `$CLAUDE_PROJECTS` (по умолчанию
+`~/StudioProjects`). Настройки `link.sh` — переменные окружения или `local.env` рядом со
+скриптом (`CLAUDE_DATA`, `CLAUDE_TOOLING_LANG`, `CLAUDE_PROJECTS`; окружение главнее). Имена в данных без ведущей точки — так их видно в Finder; точку
 добавляет симлинк на стороне воркtree.
 
 ## Разметка
@@ -45,16 +71,17 @@ Syncthing, никак) — решает владелец данных, тули�
 
 ## Новый проект
 
-`./link.sh --init <воркtree>` — если `$CLAUDE_DATA/projects/<имя главного воркtree>/` нет,
-копирует туда `projects/_template` (копию, не симлинк), раскладывает `wiki/` и `tasks/`,
+Проще — `/onboard-project`. Вручную: `./link.sh --init <воркtree>` — если
+`$CLAUDE_DATA/projects/<имя главного воркtree>/` нет, копирует туда
+`projects/_template/<язык>` (копию, не симлинк), раскладывает `wiki/` и `tasks/`,
 подставляет `<Project>`, `<DataRoot>` и `<ToolingRoot>`, пишет дату копии в
 `.template-origin` и линкует. Дальше:
 
 1. Заполнить `CLAUDE.md` проекта — особенно Commands: сборку, тесты, линт и запуск агенты
    берут оттуда.
 2. Специализировать скиллы и агентов в данных проекта под стек.
-3. Память — по желанию: `cp -R memory/_template "$CLAUDE_DATA/memory/<проект>"`, затем
-   `./link.sh --home`.
+3. Память — по желанию: скопировать нужные файлы из `memory/_template/<язык>/` в
+   `$CLAUDE_DATA/memory/<проект>/` с `MEMORY.md`, затем `./link.sh <воркtree>`.
 
 ## Новая машина
 

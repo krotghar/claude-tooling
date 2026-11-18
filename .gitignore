@@ -3,6 +3,7 @@
 /*
 !/.gitignore
 !/README.md
+!/INSTALL.md
 !/LICENSE
 !/CLAUDE.md
 !/link.sh
@@ -14,8 +15,9 @@
 
 # Внутри разрешённых каталогов — только то, что тулинг.
 /home/*
-!/home/CLAUDE.md
 !/home/settings.json
+!/home/ru/
+!/home/en/
 /projects/*
 !/projects/_template/
 /memory/*

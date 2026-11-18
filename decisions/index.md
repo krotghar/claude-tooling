@@ -9,4 +9,7 @@
 - [[knowledge-routing]] — что куда пишется: auto memory, `CLAUDE.md`, `wiki/`, `tasks/`, `decisions/`
 
 ## Шаблон проекта
-- [[project-template]] — `projects/_template`, `memory/_template`, `link.sh --init`
+- [[project-template]] — `projects/_template/<язык>`, `memory/_template/<язык>`, `link.sh --init`
+
+## Установка
+- [[installer]] — `INSTALL.md`, скиллы `onboard-project` и `tooling-review`

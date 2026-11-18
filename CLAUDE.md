@@ -17,10 +17,15 @@ owner's name and e-mail are fine (commit authorship, the own address in content)
 
 ## Layout
 
-- `home/CLAUDE.md` → `~/.claude/CLAUDE.md` — global instructions.
+- `INSTALL.md` — AI installer prompt (`claude "Install the tooling following INSTALL.md"`).
+- `home/<lang>/CLAUDE.md` → `~/.claude/CLAUDE.md` — global instructions; `home/<lang>/skills/*`
+  (`onboard-project`, `tooling-review`) → `~/.claude/skills/`.
+- Languages: `home/`, `projects/_template/`, `memory/_template/` have `ru/` and `en/` trees.
+  RU is the source, EN its translation — change RU, update EN in the same commit with the same
+  file set (EN memory has no `feedback_reply_in_russian`). `CLAUDE_TOOLING_LANG` (default `ru`) picks one.
 - `home/settings.json` — neutral template for `~/.claude/settings.json`; not linked, compare
   by hand. Its `additionalDirectories` must cover both roots.
-- `projects/_template/`, `memory/_template/` — never linked (`link.sh` skips `_*`). A new
+- `projects/_template/<lang>/`, `memory/_template/<lang>/` — never linked (`link.sh` skips `_*`). A new
   project gets a **copy** via `link.sh --init`; placeholders `<Project>`, `<DataRoot>`,
   `<ToolingRoot>` are substituted on copy. Scripts that need the data root use
   `${CLAUDE_DATA:-<DataRoot>}`.
@@ -30,8 +35,11 @@ owner's name and e-mail are fine (commit authorship, the own address in content)
 
 From the data root `link.sh` links `projects/<P>/*` into worktrees, `memory/<P>/` into
 `~/.claude/projects/<key>/memory`, `home/skills/*` into `~/.claude/skills/`, and `fish/*.fish`
-into `~/.config/fish/functions/`. The memory key is derived from
-`$CLAUDE_PROJECTS/<P>` (default `~/StudioProjects`).
+into `~/.config/fish/functions/`. The memory key is derived from the real main-worktree path
+on `link.sh <worktree>`; `--home` relinks memory only for projects under `$CLAUDE_PROJECTS`
+(default `~/StudioProjects`). Settings come from env vars or untracked `local.env` next to
+`link.sh` (env wins). Platforms: macOS, Linux, Windows via Git Bash (native symlinks,
+Developer Mode); no `sed -i`.
 
 ## Commands
 
