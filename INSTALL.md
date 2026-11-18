@@ -1,18 +1,32 @@
 # Installer prompt
 
-This file is instructions for Claude Code, not for a human. Start it from the cloned
-repository:
+This file is instructions for Claude Code, not for a human. The user starts it from the
+folder of the project they want to connect:
 
 ```bash
-claude "Install the tooling following INSTALL.md"
+cd <project>
+claude "Install https://github.com/krotghar/claude-tooling following its INSTALL.md"
 ```
+
+Starting it from a clone of the tooling itself also works: then there is no project yet, and
+step 7 asks for one.
 
 ---
 
 You are installing this tooling for the user. Talk to them in the language they wrote to you
 in. Go step by step, explain each step in one or two sentences, and ask before anything that
-overwrites or moves their files. `TOOLING` below is the directory of this file (where
-`link.sh` lives).
+overwrites or moves their files. `PROJECT` below is the folder the session was started in,
+unless it is the tooling clone itself. `TOOLING` is the tooling clone (where `link.sh` lives).
+
+## 0. Find or clone the tooling
+
+- The session runs inside a clone of the tooling (`link.sh` and `INSTALL.md` at the git
+  root): `TOOLING` is that folder, there is no `PROJECT`.
+- `~/.claude/skills/onboard-project` is a symlink: the tooling is already installed, and
+  `TOOLING` is three levels up from its target. Skip to step 7 for `PROJECT`.
+- Otherwise ask where to clone the tooling. Default: `~/claude-tooling`; any path outside
+  `PROJECT` works. Clone there and read `TOOLING/INSTALL.md`: if it differs from what you were
+  given, follow the cloned one.
 
 ## 1. Environment
 
@@ -86,12 +100,15 @@ Leave every other key alone.
 
 Show the output. Every line should be `link:` or `ok:`.
 
-## 7. First project
+## 7. Connect the project
 
-Ask whether to connect a project now. If yes, read
-`TOOLING/home/<lang>/skills/onboard-project/SKILL.md` and follow it. It was just linked, but
-this session started before that, so the skill isn't loaded here: read the file instead of
-calling the skill. For later projects the user runs `/onboard-project` in a new session.
+Read `TOOLING/home/<lang>/skills/onboard-project/SKILL.md` and follow it for `PROJECT`
+(`<lang>` from `TOOLING/local.env`). It may have just been linked, but this session started
+before that, so the skill isn't loaded here: read the file instead of calling the skill. No
+`PROJECT` (started from the tooling clone): ask whether to connect one now and which.
+
+Tell the user how to connect later projects: the same command from that project's folder, or
+`/onboard-project` in a Claude Code session there.
 
 ## 8. Periodic review (optional)
 

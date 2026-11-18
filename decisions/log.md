@@ -35,3 +35,9 @@
 
 ## [2026-11-18] tooling-data-layout | отслеживаемые пути и пути Windows (решения 15–16)
 `link.sh` не линкует поверх файлов из git проекта (`CLAUDE.local.md`, `settings.local.json` или пропуск), `onboard-project` это учитывает; guard research-агента сравнивает пути в форме `C:/x/y`. Найдено прогоном `INSTALL.md` на клоне самого тулинга.
+
+## [2026-11-18] installer | установка — из папки проекта (решение 8)
+`cd <проект>` и `claude "Install https://github.com/krotghar/claude-tooling following its INSTALL.md"`: Claude клонирует тулинг, ставит и подключает текущий проект; если уже установлен — только подключает. README переписан для людей.
+
+## [2026-11-18] tooling-data-layout | `CLAUDE_PROJECTS` без дефолта (решение 17)
+Убрана привязка к `~/StudioProjects`: не задана — `--home` не линкует память, её линкует `link.sh <воркtree>`.

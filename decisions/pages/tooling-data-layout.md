@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Где | `link.sh` (`TOOLING`, `CLAUDE_DATA`, `CLAUDE_PROJECTS`), `.gitignore`, `hooks/`, `home/settings.json` |
-| Сейчас | (на 2026-11-18: язык шаблонов — `CLAUDE_TOOLING_LANG`, настройки — ещё и `local.env`, см. п. 11–13 и [[installer]]; отслеживаемые git пути проекта не линкуются, п. 15.) Тулинг — этот репозиторий; данные — `$CLAUDE_DATA` (по умолчанию `~/Documents/claude-config`), проекты — `$CLAUDE_PROJECTS` (по умолчанию `~/StudioProjects`). `link.sh --home` берёт `home/CLAUDE.md` из тулинга, `home/skills/*`, `fish/*.fish`, `memory/*` — из данных (на 2026-10-28) |
+| Сейчас | (на 2026-11-18: язык шаблонов — `CLAUDE_TOOLING_LANG`, настройки — ещё и `local.env`, см. п. 11–13 и [[installer]]; отслеживаемые git пути проекта не линкуются, п. 15.) Тулинг — этот репозиторий; данные — `$CLAUDE_DATA` (по умолчанию `~/Documents/claude-config`), проекты — `$CLAUDE_PROJECTS` (необязательна, без дефолта с 2026-11-18, п. 17). `link.sh --home` берёт `home/CLAUDE.md` из тулинга, `home/skills/*`, `fish/*.fish`, `memory/*` — из данных (на 2026-10-28) |
 | Связано | [[project-template]], [[knowledge-routing]] |
 
 ## Зачем заведено
@@ -22,7 +22,7 @@
    ошибка в allowlist — утечка); git в синк-папке; шифрованные remote (git-crypt не
    шифрует имена файлов, git-remote-gcrypt — каждый push по сути `--force`).
 2. **2026-10-28 — как тулинг находит данные: переменная с дефолтом + плейсхолдеры.**
-   `link.sh` читает `CLAUDE_DATA` и `CLAUDE_PROJECTS` с дефолтами. В шаблоне проекта —
+   `link.sh` читает `CLAUDE_DATA` и `CLAUDE_PROJECTS` с дефолтами (у `CLAUDE_PROJECTS` дефолт снят в п. 17). В шаблоне проекта —
    плейсхолдеры `<DataRoot>` и `<ToolingRoot>`, их `--init` подставляет вместе с
    `<Project>` (через `$HOME`, чтобы строка работала и в shell, и в markdown); хук-скрипты
    шаблона читают `${CLAUDE_DATA:-<DataRoot>}`. Отвергнуто: зашитый путь данных (личный
@@ -118,6 +118,15 @@
     не `/tmp/claude-*`). `resolve` теперь отдаёт `cygpath -m`, проверяются `TMPDIR`, `TMP`,
     `TEMP`. По той же причине `link.sh` сравнивает цель симлинка через `cygpath -m` —
     повторный прогон под `%TEMP%` писал `link:` вместо `ok:`.
+17. **2026-11-18 — у `CLAUDE_PROJECTS` нет дефолта, README без `~/StudioProjects`.**
+    Пользователь: не нравится жёсткая привязка к `StudioProjects` в README — это его личная
+    раскладка, у других проекты лежат где угодно. Память проекта и так линкует
+    `link.sh <воркtree>` (п. 12), поэтому `CLAUDE_PROJECTS` стала необязательной: не задана —
+    `--home` память не трогает. В README, `CLAUDE.md` и `home/settings.json` пути проектов —
+    плейсхолдеры. Кому нужна прежняя перелинковка памяти из `--home` — `CLAUDE_PROJECTS` в
+    `local.env`. Отвергнуто: убрать переменную совсем — на машине с десятком проектов
+    `--home` удобнее, чем `link.sh` на каждый; другой дефолт (`~/projects` и т. п.) — та же
+    привязка, только к чужой раскладке.
 
 ## Пробелы и открытые вопросы
 - 2026-11-18: не проверено, разрешает ли Claude Code относительный `@AGENTS.md` от

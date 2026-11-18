@@ -12,8 +12,9 @@
 # инсталлятор, в git он не попадает):
 #   CLAUDE_DATA          корень данных (по умолчанию ~/Documents/claude-config)
 #   CLAUDE_TOOLING_LANG  язык шаблонов: ru | en (по умолчанию ru)
-#   CLAUDE_PROJECTS      где лежат главные воркtree — нужен только --home, чтобы
-#                        перелинковать память проектов (по умолчанию ~/StudioProjects)
+#   CLAUDE_PROJECTS      папка, где лежат проекты, — необязательна. Если задана,
+#                        --home перелинковывает и память проектов оттуда; без неё
+#                        память линкует `link.sh <воркtree>`
 #
 # Использование:
 #   link.sh --home
@@ -39,7 +40,7 @@ if [[ -f "$TOOLING/local.env" ]]; then
   CLAUDE_TOOLING_LANG="${env_lang:-${CLAUDE_TOOLING_LANG:-}}"
 fi
 DATA="${CLAUDE_DATA:-$HOME/Documents/claude-config}"
-PROJECTS="${CLAUDE_PROJECTS:-$HOME/StudioProjects}"
+PROJECTS="${CLAUDE_PROJECTS:-}"
 TOOLING_LANG="${CLAUDE_TOOLING_LANG:-ru}"
 
 if [[ ! -d "$TOOLING/home/$TOOLING_LANG" ]]; then
@@ -153,9 +154,9 @@ link_home() {
     link_one "${skill_dir%/}" "$HOME/.claude/skills/$(basename "$skill_dir")"
   done
 
-  # Память проектов, чей главный воркtree лежит в $CLAUDE_PROJECTS. Проекты в других
-  # местах линкуют память сами, при `link.sh <воркtree>`.
-  if [[ -d "$DATA/memory" ]]; then
+  # Память проектов, чей главный воркtree лежит в $CLAUDE_PROJECTS (если задана).
+  # Остальные проекты линкуют память сами, при `link.sh <воркtree>`.
+  if [[ -n "$PROJECTS" && -d "$DATA/memory" ]]; then
     local proj_dir proj_name main_worktree
     for proj_dir in "$DATA/memory"/*/; do
       [[ -d "$proj_dir" ]] || continue

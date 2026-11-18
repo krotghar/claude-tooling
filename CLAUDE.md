@@ -17,7 +17,8 @@ owner's name and e-mail are fine (commit authorship, the own address in content)
 
 ## Layout
 
-- `INSTALL.md` — AI installer prompt (`claude "Install the tooling following INSTALL.md"`).
+- `INSTALL.md` — AI installer prompt, run from the project to connect:
+  `claude "Install https://github.com/krotghar/claude-tooling following its INSTALL.md"`.
 - `home/<lang>/CLAUDE.md` → `~/.claude/CLAUDE.md` — global instructions; `home/<lang>/skills/*`
   (`onboard-project`, `tooling-review`) → `~/.claude/skills/`.
 - Languages: `home/`, `projects/_template/`, `memory/_template/` have `ru/` and `en/` trees.
@@ -36,8 +37,8 @@ owner's name and e-mail are fine (commit authorship, the own address in content)
 From the data root `link.sh` links `projects/<P>/*` into worktrees, `memory/<P>/` into
 `~/.claude/projects/<key>/memory`, `home/skills/*` into `~/.claude/skills/`, and `fish/*.fish`
 into `~/.config/fish/functions/`. The memory key is derived from the real main-worktree path
-on `link.sh <worktree>`; `--home` relinks memory only for projects under `$CLAUDE_PROJECTS`
-(default `~/StudioProjects`). Settings come from env vars or untracked `local.env` next to
+on `link.sh <worktree>`; `--home` also relinks memory of projects under `$CLAUDE_PROJECTS` if set
+(no default). Settings come from env vars or untracked `local.env` next to
 `link.sh` (env wins). Platforms: macOS, Linux, Windows via Git Bash (native symlinks,
 Developer Mode); no `sed -i`.
 
@@ -45,8 +46,8 @@ Developer Mode); no `sed -i`.
 
 ```bash
 ./link.sh --home                               # home symlinks
-./link.sh ~/StudioProjects/<project-worktree>  # symlinks into a specific worktree
-./link.sh --init ~/StudioProjects/<project>    # new project: copy _template, then link
+./link.sh <project-worktree>                   # symlinks into a specific worktree
+./link.sh --init <project>                     # new project: copy _template, then link
 git config core.hooksPath hooks                # once per clone: enable the leak guard
 hooks/pre-commit --all                         # scan the whole tree, not just the index
 ```
