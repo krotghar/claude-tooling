@@ -12,4 +12,4 @@
 - [[project-template]] — `projects/_template/<язык>`, `memory/_template/<язык>`, `link.sh --init`
 
 ## Установка
-- [[installer]] — `INSTALL.md`, скиллы `onboard-project` и `tooling-review`
+- [[installer]] — `INSTALL.md`, `UPDATE.md`, скиллы `onboard-project` и `tooling-review`

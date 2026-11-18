@@ -32,6 +32,10 @@ explanation, question and the summary — and use it as the tooling language
 - `~/.claude/skills/onboard-project` is a symlink or junction (`[ -L ]` is true for both in
   Git Bash): the tooling is already installed, and
   `TOOLING` is three levels up from its target. Skip to step 7 for `PROJECT`.
+- `~/.claude/CLAUDE.md` is a symlink (even a broken one) or a one-line `@<path>` file
+  pointing into a clone of the tooling, but `onboard-project` isn't linked: an install from
+  an older version. Don't clone a second copy: read and follow `UPDATE.md` from the same
+  repository, then come back to step 7 for `PROJECT`.
 - Otherwise ask where to clone the tooling. Default: `~/claude-tooling`; any path outside
   `PROJECT` works. Clone there and read `TOOLING/INSTALL.md`: if it differs from what you were
   given, follow the cloned one.

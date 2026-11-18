@@ -18,7 +18,9 @@ owner's name and e-mail are fine (commit authorship, the own address in content)
 ## Layout
 
 - `INSTALL.md` — AI installer prompt, run from the project to connect:
-  `claude "Install https://github.com/krotghar/claude-tooling following its INSTALL.md"`.
+  `claude "Install https://github.com/krotghar/claude-tooling following its INSTALL.md"`;
+  `UPDATE.md` — the same for an existing install, from any folder:
+  `claude "Update https://github.com/krotghar/claude-tooling following its UPDATE.md"`.
 - `home/<lang>/CLAUDE.md` → `~/.claude/CLAUDE.md` — global instructions; `home/<lang>/skills/*`
   (`onboard-project`, `tooling-review`) → `~/.claude/skills/`.
 - Languages: `home/`, `projects/_template/`, `memory/_template/` have `ru/` and `en/` trees.
