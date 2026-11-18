@@ -75,6 +75,8 @@ Test `--init` against a temp dir: `CLAUDE_DATA=$(mktemp -d) ./link.sh --init <tm
 - Changing the tooling (adding/removing a skill, agent, hook or script; changing a model,
   effort, tools, when it's invoked; deciding *not* to change it) — record the decision in
   `decisions/` in the same session.
+- A change that breaks existing installs (a linked file moves, a new required setting) needs a
+  step in `UPDATE.md` in the same commit.
 - Things learned along the way go into auto memory, not into this file. Propose promoting a
   rule here, don't do it silently.
 - Keep scope tight; check the actual source of truth before implementing.
