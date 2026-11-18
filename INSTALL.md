@@ -13,10 +13,17 @@ step 7 asks for one.
 
 ---
 
-You are installing this tooling for the user. Talk to them in the language they wrote to you
-in. Go step by step, explain each step in one or two sentences, and ask before anything that
-overwrites or moves their files. `PROJECT` below is the folder the session was started in,
+You are installing this tooling for the user. Go step by step, explain each step in one or two
+sentences, and ask before anything that overwrites or moves their files. `PROJECT` below is the folder the session was started in,
 unless it is the tooling clone itself. `TOOLING` is the tooling clone (where `link.sh` lives).
+
+## Language — first, before anything else
+
+The start command is in English, so it says nothing about the user's language. Your very
+first message, before any tool call, is one question asked in both languages: Russian or
+English (`ru` / `en`). From the answer on, talk to the user only in that language — every
+explanation, question and the summary — and use it as the tooling language
+(`CLAUDE_TOOLING_LANG`: global rules, project template, memories). Don't ask again later.
 
 ## 0. Find or clone the tooling
 
@@ -41,10 +48,8 @@ unless it is the tooling clone itself. `TOOLING` is the tooling clone (where `li
 
 ## 2. Language
 
-Ask which language the tooling should be in: `ru` or `en` (folders under `home/`,
-`projects/_template/`, `memory/_template/`). It sets the language of the global rules,
-the project template and the memories. Claude still answers in whatever language the
-user writes in.
+Already chosen at the start: it picks the folders under `home/`, `projects/_template/`,
+`memory/_template/` and goes into `local.env` in the next step.
 
 ## 3. Data root
 
