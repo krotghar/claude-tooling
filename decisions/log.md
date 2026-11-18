@@ -32,3 +32,6 @@
 
 ## [2026-11-18] tooling-data-layout | скрипты шаблона без Python, пробелы в путях (решение 14)
 `research_edit_guard.sh` на bash, линт ссылок — `scripts/lint_links.sh`; `awk` в хуках не режет путь воркtree на пробеле. Найдено тестом на Windows.
+
+## [2026-11-18] tooling-data-layout | отслеживаемые пути и пути Windows (решения 15–16)
+`link.sh` не линкует поверх файлов из git проекта (`CLAUDE.local.md`, `settings.local.json` или пропуск), `onboard-project` это учитывает; guard research-агента сравнивает пути в форме `C:/x/y`. Найдено прогоном `INSTALL.md` на клоне самого тулинга.

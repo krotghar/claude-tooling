@@ -31,17 +31,26 @@ Ask for the project path if it wasn't given. Then there are two branches.
 2. If the harness already exists (`$CLAUDE_DATA/projects/<main worktree name>/`), just run
    `"$TOOLING/link.sh" <path>` and go to step 3.
 3. Otherwise `"$TOOLING/link.sh" --init <path>`.
-4. Study the project **from the files, not from guesses**: README, build manifests
+4. If `link.sh` printed `tracked in git` or `skip (tracked in git)`, the project keeps its own
+   `CLAUDE.md`, `AGENTS.md` or `.claude/...` in git, and `link.sh` leaves them alone. The
+   harness instructions then go into `CLAUDE.local.md`, the settings into
+   `.claude/settings.local.json`; whatever was skipped (`skip`) isn't connected, so tell the
+   user what. Claude Code reads the team's `CLAUDE.md` together with the harness: read it
+   and don't duplicate it in the harness. If git has an `AGENTS.md` but no `CLAUDE.md`,
+   Claude Code reads `AGENTS.md` only while there's no `CLAUDE.md`, so make `@AGENTS.md` the
+   first line of "About the project" in the harness, and ask the user to check with
+   `/memory` in a new session that `AGENTS.md` got picked up.
+5. Study the project **from the files, not from guesses**: README, build manifests
    (`package.json`, `Cargo.toml`, `pyproject.toml`, `CMakeLists.txt`, `Makefile`,
    `build.gradle*`, `*.sln`/`*.csproj`, `go.mod`, etc.), CI configs, top-level
    directories. For a large repository, hand the overview to a subagent (Explore) and keep
    only the conclusion.
-5. In `$CLAUDE_DATA/projects/<name>/CLAUDE.md` fill in only:
+6. In `$CLAUDE_DATA/projects/<name>/CLAUDE.md` fill in only:
    - "About the project": what it is, the stack, the main directories, 3–6 lines;
    - "Commands": commands that are **visible in the files** (manifest scripts, Makefile
      targets, CI steps). If you can't find a command, leave the placeholder and ask the user.
    Leave the other placeholders alone.
-6. Suggest in a line or two what's worth adding for the stack (reviewer rules, test
+7. Suggest in a line or two what's worth adding for the stack (reviewer rules, test
    libraries in `unit-tests`), without editing; only on "yes".
 
 ### 1b. The project doesn't exist yet

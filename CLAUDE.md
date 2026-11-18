@@ -53,6 +53,8 @@ hooks/pre-commit --all                         # scan the whole tree, not just t
 
 Idempotent — safe to re-run. `link.sh` never silently clobbers a real file at the target:
 it renames it to `<name>.bak`. It appends linked paths to the project's `.git/info/exclude`.
+A path the project tracks in git is left alone: `CLAUDE.md` falls back to `CLAUDE.local.md`,
+`.claude/settings.json` to `.claude/settings.local.json`, the rest is skipped with a warning.
 Test `--init` against a temp dir: `CLAUDE_DATA=$(mktemp -d) ./link.sh --init <tmp-git-repo>`.
 
 ## Leak guard

@@ -29,7 +29,9 @@
   `wiki_index.sh` кладёт её каталог в контекст), вики задач —
   `<DataRoot>/projects/<Project>/tasks/` (ключ задачи вида `PROJ-123`).
 - Файлы `.claude/skills/`, `.claude/agents/`, `.claude/scripts/`, `.claude/settings.json`
-  в git не добавлять (исключены через `.git/info/exclude`).
+  в git не добавлять (исключены через `.git/info/exclude`). Если проект держит в git свои
+  `CLAUDE.md` или `.claude/settings.json`, обвязка лежит в `CLAUDE.local.md` и
+  `.claude/settings.local.json`.
 - Скиллы:
   - `orchestrate` — план → исполнение → проверка субагентами для задачи;
   - `check` — пользовательский `/check`: `verifier` и `reviewer` параллельно;

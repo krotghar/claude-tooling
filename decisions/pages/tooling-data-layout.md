@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Где | `link.sh` (`TOOLING`, `CLAUDE_DATA`, `CLAUDE_PROJECTS`), `.gitignore`, `hooks/`, `home/settings.json` |
-| Сейчас | (на 2026-11-18: язык шаблонов — `CLAUDE_TOOLING_LANG`, настройки — ещё и `local.env`, см. п. 11–13 и [[installer]].) Тулинг — этот репозиторий; данные — `$CLAUDE_DATA` (по умолчанию `~/Documents/claude-config`), проекты — `$CLAUDE_PROJECTS` (по умолчанию `~/StudioProjects`). `link.sh --home` берёт `home/CLAUDE.md` из тулинга, `home/skills/*`, `fish/*.fish`, `memory/*` — из данных (на 2026-10-28) |
+| Сейчас | (на 2026-11-18: язык шаблонов — `CLAUDE_TOOLING_LANG`, настройки — ещё и `local.env`, см. п. 11–13 и [[installer]]; отслеживаемые git пути проекта не линкуются, п. 15.) Тулинг — этот репозиторий; данные — `$CLAUDE_DATA` (по умолчанию `~/Documents/claude-config`), проекты — `$CLAUDE_PROJECTS` (по умолчанию `~/StudioProjects`). `link.sh --home` берёт `home/CLAUDE.md` из тулинга, `home/skills/*`, `fish/*.fish`, `memory/*` — из данных (на 2026-10-28) |
 | Связано | [[project-template]], [[knowledge-routing]] |
 
 ## Зачем заведено
@@ -97,9 +97,32 @@
     `[[ссылок]]` из `update-wiki` и `save-task-context` вынесен в `scripts/lint_links.sh`. Заодно
     починен разбор `git worktree list` в `wiki_index.sh` и хуке: путь с пробелом резался на
     `awk '{print $2}'`. Отвергнуто: требовать Python в `INSTALL.md` — лишняя зависимость ради
-    двух скриптов; jq — тоже не ставится с Git for Windows.
+    двух скриптов; jq — тоже не ставится с Git for Windows. (Нормализация пути в хуке
+    → пересмотрено в п. 16.)
+15. **2026-11-18 — `link.sh` не ставит симлинк поверх пути, который проект держит в git.**
+    Прогон `INSTALL.md` в песочнице на клоне самого тулинга: закоммиченный `CLAUDE.md` ушёл в
+    `.bak`, `git status` показал typechange, а `.git/info/exclude` на отслеживаемые файлы не
+    действует — симлинк на личный путь легко закоммитить. Теперь `CLAUDE.md` уходит в
+    `CLAUDE.local.md`, `.claude/settings.json` — в `.claude/settings.local.json` (Claude Code
+    читает их рядом с основными), `AGENTS.md` и каталоги `.claude/*` пропускаются с
+    предупреждением. Симлинк прежних версий поверх отслеживаемого пути убирается, путь
+    возвращается из git. `onboard-project` велит не дублировать командный `CLAUDE.md` в
+    обвязке, а при `AGENTS.md` без `CLAUDE.md` — импорт `@AGENTS.md`, иначе наш `CLAUDE.md`
+    его скрывает. Отвергнуто: `.claude/CLAUDE.md` как двойник — он командный по смыслу и сам
+    бывает в git; линковать скиллы поштучно в отслеживаемый `.claude/skills` — лишняя
+    сложность ради редкого случая.
+16. **2026-11-18 — пути в `research_edit_guard.sh` на Windows — в форме `C:/x/y`.** Тот же
+    прогон: `cygpath -u` превращает `%TEMP%` в `/tmp/...`, а `cd && pwd -P` — в
+    `/c/Users/<u>/AppData/Local/Temp/...`, сравнение с `TMPDIR` промахивалось, и
+    `bug-investigator` не мог писать в свой scratchpad (на Windows он под `%TEMP%\claude\`, а
+    не `/tmp/claude-*`). `resolve` теперь отдаёт `cygpath -m`, проверяются `TMPDIR`, `TMP`,
+    `TEMP`. По той же причине `link.sh` сравнивает цель симлинка через `cygpath -m` —
+    повторный прогон под `%TEMP%` писал `link:` вместо `ok:`.
 
 ## Пробелы и открытые вопросы
+- 2026-11-18: не проверено, разрешает ли Claude Code относительный `@AGENTS.md` от
+  симлинка `CLAUDE.md` (воркtree) или от его цели (данные). `onboard-project` просит
+  проверить через `/memory`.
 - 2026-10-28: дефолт `CLAUDE_DATA` — путь в `~/Documents` (на macOS часто iCloud). Для
   чужого пользователя тулинга это может быть неожиданно; пока оставлен, потому что
   совпадает с живой раскладкой.

@@ -29,7 +29,9 @@ what to run only with permission (long, heavy, or side-effecting commands)>
   `wiki_index.sh` puts its index into context), task wiki —
   `<DataRoot>/projects/<Project>/tasks/` (task key like `PROJ-123`).
 - Don't add `.claude/skills/`, `.claude/agents/`, `.claude/scripts/`, `.claude/settings.json`
-  to git (they are excluded via `.git/info/exclude`).
+  to git (they are excluded via `.git/info/exclude`). If the project tracks its own
+  `CLAUDE.md` or `.claude/settings.json`, the harness lives in `CLAUDE.local.md` and
+  `.claude/settings.local.json`.
 - Skills:
   - `orchestrate` — plan → execute → verify with subagents for a task;
   - `check` — user-invoked `/check`: `verifier` and `reviewer` in parallel;

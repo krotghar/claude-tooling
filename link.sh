@@ -74,9 +74,17 @@ memory_key() {
 link_one() {
   local target="$1" link_name="$2"
   if [[ -L "$link_name" ]]; then
-    local current
+    local current target_cmp
     current="$(readlink "$link_name")"
-    if [[ "$current" == "$target" ]]; then
+    # На Windows readlink может вернуть другую форму того же пути (/tmp вместо
+    # /c/Users/<u>/AppData/Local/Temp) — сравниваем в одной.
+    if [[ -n "$IS_WINDOWS" ]]; then
+      current="$(cygpath -m "$current")"
+      target_cmp="$(cygpath -m "$target")"
+    else
+      target_cmp="$target"
+    fi
+    if [[ "$current" == "$target_cmp" ]]; then
       echo "  ok: $link_name"
       return
     fi
@@ -108,6 +116,21 @@ ensure_excluded() {
     echo "/$rel" >>"$exclude_file"
     echo "  exclude: /$rel"
   fi
+}
+
+is_tracked() {
+  [[ -n "$(git -C "$1" ls-files -- "$2" 2>/dev/null)" ]]
+}
+
+# Прежние версии ставили симлинк и поверх отслеживаемого пути. Такой симлинк, если git
+# хранит там не симлинк, убираем и возвращаем путь из git; старая копия — в <путь>.bak.
+restore_tracked() {
+  local worktree="$1" rel="$2"
+  [[ -L "$worktree/$rel" ]] || return 0
+  [[ "$(git -C "$worktree" ls-files -s -- "$rel" | head -1)" == 120000* ]] && return 0
+  rm "$worktree/$rel"
+  git -C "$worktree" checkout -- "$rel"
+  echo "  restored from git: $worktree/$rel"
 }
 
 link_home() {
@@ -225,16 +248,31 @@ link_worktree() {
   fi
 
   echo "Project symlinks in $worktree (setup: $proj_name):"
-  link_one "$proj_dir/CLAUDE.md" "$worktree/CLAUDE.md"
+  # Источник в обвязке : путь в воркtree : локальный двойник, если путь занят git.
   # AGENTS.md (https://agents.md/) — те же инструкции для остальных агентов.
-  link_one "$proj_dir/CLAUDE.md" "$worktree/AGENTS.md"
-  mkdir -p "$worktree/.claude"
-  link_one "$proj_dir/skills" "$worktree/.claude/skills"
-  link_one "$proj_dir/agents" "$worktree/.claude/agents"
-  link_one "$proj_dir/scripts" "$worktree/.claude/scripts"
-  link_one "$proj_dir/settings.json" "$worktree/.claude/settings.json"
-  local rel
-  for rel in CLAUDE.md AGENTS.md .claude/skills .claude/agents .claude/scripts .claude/settings.json; do
+  local entry src rel fallback
+  for entry in \
+    "CLAUDE.md:CLAUDE.md:CLAUDE.local.md" \
+    "CLAUDE.md:AGENTS.md:" \
+    "skills:.claude/skills:" \
+    "agents:.claude/agents:" \
+    "scripts:.claude/scripts:" \
+    "settings.json:.claude/settings.json:.claude/settings.local.json"; do
+    IFS=: read -r src rel fallback <<<"$entry"
+    # Путь, который проект держит в git, не трогаем: симлинк поверх него git видит как
+    # правку (typechange), и её легко закоммитить вместе с личным путём. Claude Code
+    # читает CLAUDE.local.md и settings.local.json рядом с основными файлами.
+    if is_tracked "$worktree" "$rel"; then
+      restore_tracked "$worktree" "$rel"
+      if [[ -n "$fallback" ]] && ! is_tracked "$worktree" "$fallback"; then
+        echo "  tracked in git, using $fallback: $worktree/$rel"
+        rel="$fallback"
+      else
+        echo "  skip (tracked in git): $worktree/$rel"
+        continue
+      fi
+    fi
+    link_one "$proj_dir/$src" "$worktree/$rel"
     ensure_excluded "$worktree" "$rel"
   done
 

@@ -3,8 +3,9 @@
 # PreToolUse hook for research agents (bug-investigator): Edit/Write/NotebookEdit
 # are allowed only inside their worktree <main-worktree>-research-* (next to the project's
 # main worktree) and in the session's temporary directories: /tmp/claude-* (Claude Code
-# scratchpad) and $TMPDIR (other harnesses write there). The rest of /tmp, the main
-# checkout and everything else — blocked.
+# scratchpad) and $TMPDIR, $TMP, $TEMP (other harnesses write there, and on Windows the
+# scratchpad lives under them). The rest of /tmp, the main checkout and everything
+# else — blocked.
 #
 # No Python or jq: Windows (Git Bash) usually has neither.
 #
@@ -25,13 +26,16 @@ to_posix() {
 }
 
 # Absolute path without symlinks; a missing tail (new file) is appended as is.
+# On Windows, in the C:/x/y form: otherwise the same directory comes out as /tmp/... or as
+# /c/Users/<u>/AppData/Local/Temp/..., and the comparison with TMPDIR misses.
 resolve() {
-  local p="$1" rest=""
+  local p="$1" rest="" abs
   while [ ! -d "$p" ] && [ "$p" != "/" ] && [ "$p" != "." ]; do
     rest="/$(basename "$p")$rest"
     p="$(dirname "$p")"
   done
-  echo "$(cd "$p" && pwd -P)$rest"
+  abs="$(cd "$p" && pwd -P)$rest"
+  if command -v cygpath >/dev/null; then cygpath -m "$abs"; else echo "$abs"; fi
 }
 
 path="$(resolve "$(to_posix "$raw")")"
@@ -42,10 +46,11 @@ main="$(git -C "${CLAUDE_PROJECT_DIR:-$PWD}" worktree list --porcelain 2>/dev/nu
 case "$path" in
   /tmp/claude-*/* | /private/tmp/claude-*/*) exit 0 ;;
 esac
-if [ -n "${TMPDIR:-}" ] && [ -d "$TMPDIR" ]; then
-  tmp="$(resolve "$TMPDIR")"
+for tmp in "${TMPDIR:-}" "${TMP:-}" "${TEMP:-}"; do
+  [ -n "$tmp" ] && [ -d "$(to_posix "$tmp")" ] || continue
+  tmp="$(resolve "$(to_posix "$tmp")")"
   case "$path" in "${tmp%/}"/*) exit 0 ;; esac
-fi
+done
 if [ -n "$main" ]; then
   case "$path" in "$main"-research-*/*) exit 0 ;; esac
 fi
