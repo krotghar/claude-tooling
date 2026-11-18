@@ -17,3 +17,6 @@
 
 ## [2026-11-17] tooling-data-layout | личные правила — импортом из данных (решение 9)
 Глобальный `CLAUDE.md` в конце импортирует `~/.claude/CLAUDE.personal.md`; `link.sh --home` линкует туда `$CLAUDE_DATA/home/CLAUDE.md`, если он есть.
+
+## [2026-11-18] tooling-data-layout | ворктри-линк AGENTS.md возвращён (решение 10)
+Глобальный `~/.agents/AGENTS.md` остаётся снятым (Cline выпилен вместе с `rec`, `pi`); `<worktree>/AGENTS.md` в `link.sh` и README возвращён — пересматривает решение 8 в части ворктри.
