@@ -41,3 +41,9 @@
 
 ## [2026-11-18] tooling-data-layout | `CLAUDE_PROJECTS` без дефолта (решение 17)
 Убрана привязка к `~/StudioProjects`: не задана — `--home` не линкует память, её линкует `link.sh <воркtree>`.
+
+## [2026-11-18] tooling-data-layout | Windows без Developer Mode (решение 18)
+Без права на симлинки `link.sh` ставит junction для каталогов, импорт `@<путь>` для `CLAUDE*.md` и hardlink для остальных файлов; PowerShell-версию отвергли — та же привилегия. Порванный правкой hardlink повторный прогон чинит.
+
+## [2026-11-18] tooling-data-layout | `AGENTS.md` в воркtree снят (решение 19)
+Других агентов нет, а без симлинков его hardlink рвался от каждой правки `CLAUDE.md`. `link.sh` убирает оставшиеся ссылки прежних версий; командный `AGENTS.md` из git не трогается.

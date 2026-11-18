@@ -60,8 +60,10 @@ echo "tooling=$TOOLING data=${CLAUDE_DATA:-$HOME/Documents/claude-config} lang=$
 
 ## 2. Проверка ссылок
 
-`ls -la <путь>/CLAUDE.md <путь>/.claude/` — симлинки на данные на месте. На Windows
-симлинк должен быть симлинком (`ls -la` показывает `->`), а не копией файла.
+`ls -la <путь>/CLAUDE.md <путь>/.claude/` — симлинки на данные на месте (`ls -la`
+показывает `->`). На Windows без Developer Mode `link.sh` ставит обходы — это норма:
+каталоги — junction (тоже `->`), `CLAUDE.md` — одна строка `@<путь в данных>`,
+`settings.json` — hardlink (в выводе `link.sh` — `hardlink:`).
 
 ## 3. Памяти
 

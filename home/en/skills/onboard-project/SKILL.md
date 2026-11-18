@@ -63,8 +63,10 @@ Ask for the project path if it wasn't given. Then there are two branches.
 
 ## 2. Check the links
 
-`ls -la <path>/CLAUDE.md <path>/.claude/`: the symlinks to the data are in place. On
-Windows a symlink must be a symlink (`ls -la` shows `->`), not a copy of the file.
+`ls -la <path>/CLAUDE.md <path>/.claude/`: the symlinks to the data are in place (`ls -la`
+shows `->`). On Windows without Developer Mode `link.sh` uses workarounds, and that's fine:
+directories are junctions (also `->`), `CLAUDE.md` is one line `@<path in data>`,
+`settings.json` is a hardlink (`link.sh` prints `hardlink:`).
 
 ## 3. Memories
 

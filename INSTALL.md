@@ -22,7 +22,8 @@ unless it is the tooling clone itself. `TOOLING` is the tooling clone (where `li
 
 - The session runs inside a clone of the tooling (`link.sh` and `INSTALL.md` at the git
   root): `TOOLING` is that folder, there is no `PROJECT`.
-- `~/.claude/skills/onboard-project` is a symlink: the tooling is already installed, and
+- `~/.claude/skills/onboard-project` is a symlink or junction (`[ -L ]` is true for both in
+  Git Bash): the tooling is already installed, and
   `TOOLING` is three levels up from its target. Skip to step 7 for `PROJECT`.
 - Otherwise ask where to clone the tooling. Default: `~/claude-tooling`; any path outside
   `PROJECT` works. Clone there and read `TOOLING/INSTALL.md`: if it differs from what you were
@@ -32,15 +33,10 @@ unless it is the tooling clone itself. `TOOLING` is the tooling clone (where `li
 
 - Check that `git` is available.
 - **Windows:** every command below runs in Git Bash, which Claude Code on Windows already
-  needs. `link.sh` creates native symlinks, which need Developer Mode (Settings → For
-  developers) or an elevated shell. Check before anything else:
-  ```bash
-  d="$(mktemp -d)"; touch "$d/a"; MSYS=winsymlinks:nativestrict ln -s "$d/a" "$d/b" && ls -la "$d"; rm -rf "$d"
-  ```
-  If it fails with "Operation not permitted", Developer Mode is off: ask the user to turn it
-  on (Settings → System → For developers → Developer Mode), then run the check again. Stop
-  here until it passes. Don't fall back to copies: the tooling relies on edits going through
-  the links.
+  needs. Developer Mode is not required: without the symlink privilege `link.sh` says so
+  and uses junctions for directories, a one-line `@<path>` import for `CLAUDE.md` and
+  a hardlink for `.claude/settings.json`. Don't ask the user to turn Developer Mode on. If they have it,
+  `link.sh` uses real symlinks.
 - Nothing else is needed: the scripts are plain bash, no Python or jq.
 
 ## 2. Language
@@ -67,7 +63,8 @@ Use `$HOME/...` rather than `~` in this file.
 
 ## 4. Existing Claude Code setup
 
-Look before linking. `link.sh --home` turns `~/.claude/CLAUDE.md` into a symlink; a real file
+Look before linking. `link.sh --home` turns `~/.claude/CLAUDE.md` into a symlink (an
+`@<path>` import on Windows without Developer Mode); a real file
 there gets renamed to `CLAUDE.md.bak` and drops out of context.
 
 - `~/.claude/CLAUDE.md` is a real file: show the user its content and offer to move it to

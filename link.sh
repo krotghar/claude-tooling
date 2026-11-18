@@ -24,8 +24,12 @@
 # Папки с `_` в начале имени (projects/_template, memory/_template) — заготовки,
 # а не проекты: их не линкуем.
 #
-# Windows: запускать из Git Bash. Симлинки там нативные (нужен Developer Mode или
-# права администратора); без них скрипт падает, а не копирует файлы молча.
+# Windows: запускать из Git Bash. Симлинки там нативные — нужен Developer Mode или
+# права администратора. Без них скрипт ставит то, что прав не требует: каталог —
+# junction, CLAUDE*.md — файл-импорт `@<путь>`, прочий файл (settings.json) — hardlink
+# (не тот диск — копия). Hardlink рвётся, когда файл переписывают заменой (так правит Claude Code):
+# повторный запуск это видит и ставит заново, а разошедшийся файл уводит в .bak.
+# CLAUDE_TOOLING_NO_SYMLINKS=1 — обходы и при праве на симлинки (для проверки).
 #
 set -euo pipefail
 
@@ -49,10 +53,20 @@ if [[ ! -d "$TOOLING/home/$TOOLING_LANG" ]]; then
 fi
 
 IS_WINDOWS=""
+SYMLINKS=1
 case "$(uname -s)" in
   MINGW* | MSYS* | CYGWIN*)
     IS_WINDOWS=1
     export MSYS=winsymlinks:nativestrict CYGWIN=winsymlinks:nativestrict
+    if [[ -n "${CLAUDE_TOOLING_NO_SYMLINKS:-}" ]]; then
+      SYMLINKS=""
+    else
+      probe="$(mktemp -d)"
+      touch "$probe/f"
+      ln -s "$probe/f" "$probe/l" 2>/dev/null || SYMLINKS=""
+      rm -rf "$probe"
+    fi
+    [[ -n "$SYMLINKS" ]] || echo "No symlink privilege (Developer Mode is off): using junctions, @-imports and hardlinks."
     ;;
 esac
 
@@ -70,10 +84,41 @@ memory_key() {
   echo "$path" | sed 's/[^A-Za-z0-9]/-/g'
 }
 
+# Содержимое файла-импорта: одна строка `@<путь>`, путь под домашним — через `~`.
+# Claude Code раскрывает импорт при загрузке CLAUDE.md; импорт извне проекта он один раз
+# спрашивает подтвердить.
+import_line() {
+  local path home
+  path="$(cygpath -m "$1")"
+  home="$(cygpath -m "$HOME")"
+  [[ "$path" == "$home"/* ]] && path="~${path#"$home"}"
+  echo "@${path// /\\ }"
+}
+
+# Файл-импорт, поставленный нами (на что бы он ни указывал): ровно одна строка с `@`.
+is_import_file() {
+  local content
+  [[ -f "$1" ]] || return 1
+  content="$(cat "$1")"
+  [[ "$content" == @* && "$content" != *$'\n'* ]]
+}
+
+# На месте цели — то, что поставил обход без симлинков, и оно указывает на target.
+is_fallback_link() {
+  local target="$1" link_name="$2"
+  [[ "$link_name" -ef "$target" ]] && return 0
+  is_import_file "$link_name" && [[ "$(cat "$link_name")" == "$(import_line "$target")" ]]
+}
+
 # Существующий реальный файл/каталог на месте цели не затираем молча —
-# переименовываем в .bak рядом и говорим об этом.
+# переименовываем в .bak рядом и говорим об этом. Исключение — файл, совпадающий с
+# target по содержимому (копия или порванный hardlink): его просто заменяем.
 link_one() {
   local target="$1" link_name="$2"
+  if [[ -z "$SYMLINKS" && ! -L "$link_name" ]] && is_fallback_link "$target" "$link_name"; then
+    echo "  ok: $link_name"
+    return
+  fi
   if [[ -L "$link_name" ]]; then
     local current target_cmp
     current="$(readlink "$link_name")"
@@ -90,14 +135,31 @@ link_one() {
       return
     fi
     rm "$link_name"
+  elif [[ -f "$link_name" ]] && { [[ "$link_name" -ef "$target" ]] || is_import_file "$link_name" ||
+    cmp -s "$link_name" "$target"; }; then
+    rm "$link_name"
   elif [[ -e "$link_name" ]]; then
     local bak="${link_name}.bak"
     echo "  backup of a real file: $link_name -> $bak"
     mv "$link_name" "$bak"
   fi
   mkdir -p "$(dirname "$link_name")"
-  ln -s "$target" "$link_name"
-  echo "  link: $link_name -> $target"
+  if [[ -n "$SYMLINKS" ]]; then
+    ln -s "$target" "$link_name"
+    echo "  link: $link_name -> $target"
+  elif [[ -d "$target" ]]; then
+    # Без конвертации аргументов MSYS иначе примет ключ /J за путь.
+    MSYS2_ARG_CONV_EXCL='*' cmd /c mklink /J "$(cygpath -w "$link_name")" "$(cygpath -w "$target")" >/dev/null
+    echo "  junction: $link_name -> $target"
+  elif [[ "$(basename "$link_name")" == CLAUDE*.md ]]; then
+    import_line "$target" >"$link_name"
+    echo "  import: $link_name -> $target"
+  elif ln "$target" "$link_name" 2>/dev/null; then
+    echo "  hardlink: $link_name -> $target"
+  else
+    cp "$target" "$link_name"
+    echo "  copy (hardlink failed — another drive?), re-run after editing: $link_name <- $target"
+  fi
 }
 
 # Дописывает /<путь> в .git/info/exclude (общий на все воркtree), если строки
@@ -249,12 +311,16 @@ link_worktree() {
   fi
 
   echo "Project symlinks in $worktree (setup: $proj_name):"
+  # AGENTS.md прежних версий — ссылку на наш CLAUDE.md — убираем: других агентов нет.
+  if [[ "$worktree/AGENTS.md" -ef "$proj_dir/CLAUDE.md" ]] && ! is_tracked "$worktree" AGENTS.md; then
+    rm "$worktree/AGENTS.md"
+    echo "  removed old link: $worktree/AGENTS.md"
+  fi
+
   # Источник в обвязке : путь в воркtree : локальный двойник, если путь занят git.
-  # AGENTS.md (https://agents.md/) — те же инструкции для остальных агентов.
   local entry src rel fallback
   for entry in \
     "CLAUDE.md:CLAUDE.md:CLAUDE.local.md" \
-    "CLAUDE.md:AGENTS.md:" \
     "skills:.claude/skills:" \
     "agents:.claude/agents:" \
     "scripts:.claude/scripts:" \

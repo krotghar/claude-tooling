@@ -39,8 +39,9 @@ From the data root `link.sh` links `projects/<P>/*` into worktrees, `memory/<P>/
 into `~/.config/fish/functions/`. The memory key is derived from the real main-worktree path
 on `link.sh <worktree>`; `--home` also relinks memory of projects under `$CLAUDE_PROJECTS` if set
 (no default). Settings come from env vars or untracked `local.env` next to
-`link.sh` (env wins). Platforms: macOS, Linux, Windows via Git Bash (native symlinks,
-Developer Mode); no `sed -i`.
+`link.sh` (env wins). Platforms: macOS, Linux, Windows via Git Bash (native symlinks with
+Developer Mode; without it junctions, `@`-import files for `CLAUDE*.md`, hardlinks —
+`CLAUDE_TOOLING_NO_SYMLINKS=1` forces that path for testing); no `sed -i`.
 
 ## Commands
 

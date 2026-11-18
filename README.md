@@ -36,9 +36,11 @@ Claude склонирует тулинг, спросит язык (русски�
 Следующий проект подключается так же — той же командой из его папки или `/onboard-project` в
 сессии Claude Code там.
 
-**Windows:** нужен Developer Mode (Параметры → Система → Для разработчиков) — без него нельзя
-создавать симлинки. Всё остальное работает в Git Bash, который и так ставится вместе с Claude
-Code.
+**Windows:** всё работает в Git Bash, который и так ставится вместе с Claude Code. Developer
+Mode не нужен: без права на симлинки `link.sh` ставит junction для папок, однострочный
+импорт `@<путь>` для `CLAUDE.md` и hardlink для `.claude/settings.json`. Hardlink рвётся, когда файл
+переписывают целиком (так правит Claude); повторный `link.sh` это чинит. С Developer Mode
+ставятся обычные симлинки.
 
 ## Где что лежит
 
@@ -49,7 +51,7 @@ Code.
 | **Тулинг** — клон этого репозитория | общие правила, шаблон проекта, `link.sh` | `git pull` |
 | **Данные** — по умолчанию `~/Documents/claude-config` | настройки ваших проектов, их вики и документы задач, память Claude, личные правила | не в git; синхронизировать между машинами (iCloud, Syncthing) или нет — на ваш выбор |
 
-В проекте появляются симлинки на данные: `CLAUDE.md`, `AGENTS.md`, `.claude/skills`,
+В проекте появляются симлинки на данные: `CLAUDE.md`, `.claude/skills`,
 `.claude/agents`, `.claude/scripts`, `.claude/settings.json`. Они дописываются в
 `.git/info/exclude`, поэтому `git status` их не показывает. Если проект сам держит в git
 `CLAUDE.md` или `.claude/settings.json`, их место занимают `CLAUDE.local.md` и

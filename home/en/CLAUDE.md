@@ -11,12 +11,14 @@ This is the main route: nine edits out of ten should go here.
 don't move it silently.
 
 The harness lives in two roots. **Tooling** (git): `link.sh`, this file, project templates;
-its path is the target of the `~/.claude/CLAUDE.md` symlink. **Data** (no git): the
+its path is the target of the `~/.claude/CLAUDE.md` symlink (or of the `@…` import in it). **Data** (no git): the
 `$CLAUDE_DATA` directory, `~/Documents/claude-config` by default: per-project harness and
 wiki, memory, per-project decision log. Below, `<data>` is the data root.
 
 The project's `CLAUDE.md` is a symlink to `<data>/projects/<project>/CLAUDE.md` (syncing data
-between machines, if any, is not your concern). Edit it directly; don't ask permission for
+between machines, if any, is not your concern). On Windows without Developer Mode the
+symlinks are replaced by an `@…` import, junctions and hardlinks, so edit the project harness
+at its `<data>` path, not in the worktree. Edit it directly; don't ask permission for
 the write itself, since the directory is listed in `permissions.additionalDirectories`. It
 needs no commit and is not versioned in git.
 
