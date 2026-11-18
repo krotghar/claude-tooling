@@ -67,19 +67,7 @@ argument-hint: "[опционально: номер задачи, если ег�
 ## Линт ссылок
 
 ```bash
-cd <DataRoot>/projects/<Project> && python3 - <<'EOF'
-import re, os, io, glob
-tasks = {os.path.basename(p)[:-3] for p in glob.glob('tasks/pages/*.md')}
-wiki = {os.path.basename(p)[:-3] for p in glob.glob('wiki/pages/*.md')}
-files = ['tasks/index.md', 'tasks/log.md'] + glob.glob('tasks/pages/*.md')
-bad = [(f, l) for f in files if os.path.exists(f)
-       for l in re.findall(r'\[\[([^\]]+)\]\]', io.open(f, encoding='utf-8').read())
-       if l not in tasks and l not in wiki]
-idx = set(re.findall(r'\[\[([^\]]+)\]\]', io.open('tasks/index.md', encoding='utf-8').read()))
-print("task docs:", len(tasks))
-print("broken links:", bad or "none")
-print("not in index:", sorted(tasks - idx) or "none")
-EOF
+cd <DataRoot>/projects/<Project> && scripts/lint_links.sh tasks
 ```
 
 `tasks/CLAUDE.md` линт не читает: в шаблоне формата ссылки — заглушки.

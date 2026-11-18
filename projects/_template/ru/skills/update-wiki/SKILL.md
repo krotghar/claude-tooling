@@ -85,17 +85,7 @@ Wiki живёт **вне гит-репозитория**, по абсолютн�
 ## Линт ссылок
 
 ```bash
-cd <DataRoot>/projects/<Project>/wiki && python3 - <<'EOF'
-import re, os, io, glob
-pages = {os.path.basename(p)[:-3] for p in glob.glob('pages/*.md')}
-bad = [(f, l) for f in glob.glob('*.md') + glob.glob('pages/*.md')
-       for l in re.findall(r'\[\[([^\]]+)\]\]', io.open(f, encoding='utf-8').read())
-       if l not in pages]
-idx = set(re.findall(r'\[\[([^\]]+)\]\]', io.open('index.md', encoding='utf-8').read()))
-print("pages:", len(pages))
-print("broken links:", bad or "none")
-print("not in index:", sorted(pages - idx) or "none")
-EOF
+cd <DataRoot>/projects/<Project> && scripts/lint_links.sh wiki
 ```
 
 Единственная ожидаемая «поломка» — `[[other-page-slug]]` в шаблоне внутри

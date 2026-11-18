@@ -23,9 +23,11 @@ overwrites or moves their files. `TOOLING` below is the directory of this file (
   ```bash
   d="$(mktemp -d)"; touch "$d/a"; MSYS=winsymlinks:nativestrict ln -s "$d/a" "$d/b" && ls -la "$d"; rm -rf "$d"
   ```
-  If it fails, ask the user to turn on Developer Mode and stop here until they have.
-- The project template's hooks use `python3` (`research_edit_guard.sh`). If there is no
-  `python3`, say so: everything else works, only that guard will fail.
+  If it fails with "Operation not permitted", Developer Mode is off: ask the user to turn it
+  on (Settings → System → For developers → Developer Mode), then run the check again. Stop
+  here until it passes. Don't fall back to copies: the tooling relies on edits going through
+  the links.
+- Nothing else is needed: the scripts are plain bash, no Python or jq.
 
 ## 2. Language
 

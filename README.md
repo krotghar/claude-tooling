@@ -11,9 +11,12 @@ Syncthing, никак) — решает владелец данных, тули�
 ## Установка
 
 ```bash
-git clone <этот репозиторий> && cd claude-tooling
+git clone https://github.com/krotghar/claude-tooling
+cd claude-tooling
 claude "Install the tooling following INSTALL.md"
 ```
+
+По команде на строку — так они работают и в bash, и в PowerShell 5.1, где нет `&&`.
 
 [`INSTALL.md`](INSTALL.md) — промпт-инсталлятор: спросит язык шаблонов (`ru`/`en`) и где
 держать данные, перенесёт существующий `~/.claude/CLAUDE.md` в личные правила, пропишет
@@ -21,8 +24,9 @@ claude "Install the tooling following INSTALL.md"
 `/onboard-project` в новой сессии. `/tooling-review` разбирает историю сессий проекта и
 предлагает правки обвязки (сам ничего не применяет).
 
-Windows — через Git Bash (он и так нужен Claude Code) с включённым Developer Mode: `link.sh`
-создаёт нативные симлинки и без прав падает, а не копирует файлы.
+Windows: нужен Developer Mode (Параметры → Система → Для разработчиков). `link.sh` и скрипты
+шаблона — на bash и работают в Git Bash, который и так ставится с Claude Code; Python и jq не
+нужны. Без Developer Mode `link.sh` падает на создании симлинка, а не копирует файлы молча.
 
 ## Языки
 

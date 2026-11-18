@@ -6,33 +6,49 @@
 # scratchpad) and $TMPDIR (other harnesses write there). The rest of /tmp, the main
 # checkout and everything else — blocked.
 #
-set -euo pipefail
+# No Python or jq: Windows (Git Bash) usually has neither.
+#
+set -uo pipefail
 
-MAIN_WORKTREE="$(git -C "${CLAUDE_PROJECT_DIR:-$PWD}" worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}')" || true
-export MAIN_WORKTREE
+# Path from the JSON on stdin: tool_input.file_path or tool_input.notebook_path.
+input="$(cat)"
+raw="$(printf '%s' "$input" | grep -oE '"(file_path|notebook_path)"[[:space:]]*:[[:space:]]*"([^"\\]|\\.)*"' | head -1 \
+  | sed -E 's/^"[a-z_]+"[[:space:]]*:[[:space:]]*"//; s/"$//; s/\\\\/\\/g; s/\\"/"/g')"
+[ -n "$raw" ] || exit 0
 
-python3 -c '
-import json, os, re, sys
-data = json.load(sys.stdin)
-tool_input = data.get("tool_input") or {}
-raw = tool_input.get("file_path") or tool_input.get("notebook_path") or ""
-if not raw:
-    sys.exit(0)
-path = os.path.realpath(os.path.expanduser(raw))
-main = os.environ.get("MAIN_WORKTREE", "")
-allowed = [r"/(private/)?tmp/claude-[^/]+/"]
-tmpdir = os.environ.get("TMPDIR", "")
-if tmpdir:
-    allowed.append(re.escape(os.path.realpath(tmpdir).rstrip("/")) + "/")
-if main:
-    allowed.append(re.escape(os.path.realpath(main)) + r"-research-[^/]+/")
-if any(re.match(pattern, path) for pattern in allowed):
-    sys.exit(0)
-hint = main or "<main-worktree>"
-print(
-    f"research agent: edits outside the research worktree are not allowed: {path}. "
-    f"Create your own worktree {hint}-research-* and edit there.",
-    file=sys.stderr,
-)
-sys.exit(2)
-'
+to_posix() {
+  case "$1" in
+    [A-Za-z]:[\\/]*) command -v cygpath >/dev/null && cygpath -u "$1" || echo "$1" ;;
+    "~/"*) echo "$HOME/${1#\~/}" ;;
+    *) echo "$1" ;;
+  esac
+}
+
+# Absolute path without symlinks; a missing tail (new file) is appended as is.
+resolve() {
+  local p="$1" rest=""
+  while [ ! -d "$p" ] && [ "$p" != "/" ] && [ "$p" != "." ]; do
+    rest="/$(basename "$p")$rest"
+    p="$(dirname "$p")"
+  done
+  echo "$(cd "$p" && pwd -P)$rest"
+}
+
+path="$(resolve "$(to_posix "$raw")")"
+
+main="$(git -C "${CLAUDE_PROJECT_DIR:-$PWD}" worktree list --porcelain 2>/dev/null | awk '/^worktree /{sub(/^worktree /, ""); print; exit}')"
+[ -n "$main" ] && main="$(resolve "$(to_posix "$main")")"
+
+case "$path" in
+  /tmp/claude-*/* | /private/tmp/claude-*/*) exit 0 ;;
+esac
+if [ -n "${TMPDIR:-}" ] && [ -d "$TMPDIR" ]; then
+  tmp="$(resolve "$TMPDIR")"
+  case "$path" in "${tmp%/}"/*) exit 0 ;; esac
+fi
+if [ -n "$main" ]; then
+  case "$path" in "$main"-research-*/*) exit 0 ;; esac
+fi
+
+printf 'research agent: editing outside the research worktree is forbidden: %s. Create your own worktree %s-research-* and edit there.\n' "$path" "${main:-<main-worktree>}" >&2
+exit 2

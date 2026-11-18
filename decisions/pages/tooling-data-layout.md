@@ -90,6 +90,14 @@
     симлинки, нужен Developer Mode; без него — ошибка, а не молчаливая копия) и переводит
     пути git `C:/...` через `cygpath`. `sed -i` убран (несовместим у BSD и GNU).
     Отвергнуто: `link.ps1` на PowerShell — вдвое больше кода, хуки шаблона всё равно на bash.
+14. **2026-11-18 — скрипты шаблона без Python.** Проверка на Windows (Git Bash, Developer Mode
+    включён) показала: `link.sh` работает, ключ памяти совпадает с тем, как его называет Claude
+    Code (`C--Users-...`), но `python3` там — заглушка Microsoft Store. `research_edit_guard.sh`
+    переписан на bash (JSON разбирается grep/sed, путь нормализуется `cd && pwd -P`), линт
+    `[[ссылок]]` из `update-wiki` и `save-task-context` вынесен в `scripts/lint_links.sh`. Заодно
+    починен разбор `git worktree list` в `wiki_index.sh` и хуке: путь с пробелом резался на
+    `awk '{print $2}'`. Отвергнуто: требовать Python в `INSTALL.md` — лишняя зависимость ради
+    двух скриптов; jq — тоже не ставится с Git for Windows.
 
 ## Пробелы и открытые вопросы
 - 2026-10-28: дефолт `CLAUDE_DATA` — путь в `~/Documents` (на macOS часто iCloud). Для

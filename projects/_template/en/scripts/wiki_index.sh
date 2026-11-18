@@ -14,7 +14,7 @@ set -uo pipefail
 # not cwd, so it works both from a sibling worktree and from .claude/worktrees/*.
 # Not git / no wiki for the project — exit silently.
 cwd="${CLAUDE_PROJECT_DIR:-$PWD}"
-main_worktree="$(git -C "$cwd" worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2; exit}')"
+main_worktree="$(git -C "$cwd" worktree list --porcelain 2>/dev/null | awk '/^worktree /{sub(/^worktree /, ""); print; exit}')"
 [ -n "$main_worktree" ] || exit 0
 
 PROJECT="$(basename "$main_worktree")"

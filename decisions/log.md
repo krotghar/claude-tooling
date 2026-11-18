@@ -29,3 +29,6 @@
 
 ## [2026-11-18] tooling-data-layout | local.env, ключ памяти, Windows (решения 11–13)
 `link.sh` читает `local.env`, линкует память по реальному пути воркtree, под Git Bash делает нативные симлинки; `sed -i` убран.
+
+## [2026-11-18] tooling-data-layout | скрипты шаблона без Python, пробелы в путях (решение 14)
+`research_edit_guard.sh` на bash, линт ссылок — `scripts/lint_links.sh`; `awk` в хуках не режет путь воркtree на пробеле. Найдено тестом на Windows.
