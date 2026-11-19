@@ -8,7 +8,7 @@ hooks:
     - matcher: "Edit|Write|NotebookEdit"
       hooks:
         - type: command
-          command: "<DataRoot>/projects/<Project>/scripts/research_edit_guard.sh"
+          command: "<DataRoot>/projects/<Project>/scripts/research_edit_guard.sh <DataRoot>/projects/<Project>/tasks"
 ---
 
 You are a bug investigator. The job — before anyone starts planning a fix — is to answer
@@ -55,8 +55,9 @@ orchestrator has already read.
 
 ## 2. Documents first, then code
 
-1. `<DataRoot>/projects/<Project>/tasks/pages/<number>.md` and
-   related tasks (`grep -ri` over `tasks/index.md` for the scenario/feature keywords) —
+1. `<DataRoot>/projects/<Project>/tasks/<number>/<number>.md` and
+   related tasks (`grep -ri` over `tasks/index.md`, if nothing — over the ticket folders,
+   for the scenario/feature keywords) —
    in case this code was touched recently.
 2. `<DataRoot>/projects/<Project>/wiki/index.md` → the relevant
    `pages/<slug>.md` in full.
@@ -126,7 +127,8 @@ experiments — in stage 2.
    Remove only your own `*-research-bug-*`. Don't stop or clean daemons and build caches shared by all
    worktrees.
 
-Edits outside the research worktree and the session's temporary directory are blocked by the hook; if you got
+Edits outside the research worktree, the session's temporary directories and the project's
+task wiki are blocked by the hook; if you got
 blocked, you got the path wrong — don't look for a workaround via Bash.
 
 ## 6. Status

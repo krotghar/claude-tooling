@@ -9,7 +9,8 @@ The user asks to save the session context to the task wiki. Argument (if any): $
 The task wiki lives **outside the git repository**, at an absolute path:
 `<DataRoot>/projects/<Project>/tasks/`
 (`CLAUDE.md` — schema and document format, `index.md` — catalog, `log.md` — log,
-`pages/<number>.md` — documents). Don't create anything inside the project repository and
+`<number or kebab-topic>/<same name>.md` — documents, next to them — the task's
+working artifacts). Don't create anything inside the project repository and
 don't offer to commit it.
 
 ## Order
@@ -18,8 +19,9 @@ don't offer to commit it.
    conversation, otherwise from the branch (`git branch --show-current` in the session's
    worktree). If the session covered several tasks — one document per task. Can't find the
    number — ask, don't make it up.
-2. **Read `tasks/CLAUDE.md`** (the format comes from there) and `pages/<number>.md` if the
-   document already exists — then you extend it rather than rewrite it. Look into
+2. **Read `tasks/CLAUDE.md`** (the format comes from there) and the task document
+   (`<number or kebab-topic>/<same name>.md`) if it already exists — then you
+   extend it rather than rewrite it. Look into
    `index.md`: are there documents on related tasks worth linking to?
 3. **Gather material from the session** — this is the main source: the problem statement
    and clarifications, decisions with reasons and rejected options, the user's decisions

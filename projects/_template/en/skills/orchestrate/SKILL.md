@@ -69,18 +69,27 @@ research is needed, that's the planner's job or a separate `Explore` agent's.
 
 ## Working directory
 
-`<scratchpad>/orchestrate/<number or kebab-topic>/`, where `<scratchpad>` is the session's
-scratchpad directory from the system prompt. It holds:
+The plan, the execution log and all orchestration artifacts live in the task wiki's
+ticket folder: `<DataRoot>/projects/<Project>/tasks/<number or kebab-topic>/`. The
+folder may not exist yet — create it; its layout and artifact examples are in
+`tasks/CLAUDE.md`. It holds:
 
 - `plan.md` — the plan (written by the orchestrator from the planner's output) + the
   "User requirements" and "Decisions along the way" sections (written by the orchestrator)
   + the "Execution log" section (written by the executor).
 - `investigation.md` — the `bug-investigator` report (bugs only, phase 0.5).
 - `bug-investigation/` — its evidence (screenshots, logs, command output).
+- From there on — the same: verification reports, investigations and the rest of the
+  task's artifacts go into this same folder.
 
-Handoff between roles goes **only through this file**, not by retelling in the prompt: a
-retelling loses details, and every role reads the file the same way. Pass the absolute path
-to `plan.md` to every subagent.
+Don't create a parallel orchestration directory in the checkout: `.claude/orchestrate/`
+is a rejected path — the artifacts belong next to the task document, where
+`save-task-context` will pick them up and where they don't pollute the project's
+`git status`.
+
+Handoff between roles goes **only through the files of this folder**, not by retelling in
+the prompt: a retelling loses details, and every role reads the file the same way. Pass
+the absolute path to `plan.md` to every subagent.
 
 ## Intermediate commits
 
@@ -108,7 +117,7 @@ investigation, plan, review, `verifier`) don't need a commit.
 
 0. The task branch — per the "Branch per task" rule in the project's CLAUDE.md, before any
    edits and WIP commits. No such rule — ask what to branch from and how to name it.
-1. Task number → `tasks/pages/<number>.md` (and related ones), if present.
+1. Task number → `tasks/<number>/<number>.md` (and related ones), if present.
 2. `wiki/index.md` → the relevant pages.
 3. Requirements: the ticket / the user's text; separate the requirements from the
    arguments from the task. Gaps already visible now (no design, unclear

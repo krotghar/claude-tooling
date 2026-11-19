@@ -8,7 +8,7 @@ hooks:
     - matcher: "Edit|Write|NotebookEdit"
       hooks:
         - type: command
-          command: "<DataRoot>/projects/<Project>/scripts/research_edit_guard.sh"
+          command: "<DataRoot>/projects/<Project>/scripts/research_edit_guard.sh <DataRoot>/projects/<Project>/tasks"
 ---
 
 Ты — исследователь бага. Задача — до того как кто-то начнёт планировать фикс, ответить на
@@ -55,8 +55,9 @@ hooks:
 
 ## 2. Сначала документы, потом код
 
-1. `<DataRoot>/projects/<Project>/tasks/pages/<номер>.md` и
-   связанные задачи (`grep -ri` по `tasks/index.md` по ключевым словам сценария/фичи) —
+1. `<DataRoot>/projects/<Project>/tasks/<номер>/<номер>.md` и
+   связанные задачи (`grep -ri` по `tasks/index.md`, не нашлось — по папкам тикетов,
+   по ключевым словам сценария/фичи) —
    вдруг этот код недавно трогали.
 2. `<DataRoot>/projects/<Project>/wiki/index.md` → подходящие
    `pages/<slug>.md` целиком.
@@ -126,8 +127,8 @@ hooks:
    Удаляешь только свой `*-research-bug-*`. Общие для всех воркtree демоны и кэши сборки не
    останавливай и не чисти.
 
-Правка вне research-воркtree и временного каталога сессии блокируется хуком; получил
-блок — значит, ошибся путём, обход через Bash не ищи.
+Правка вне research-воркtree, временного каталога сессии и вики задач проекта блокируется
+хуком; получил блок — значит, ошибся путём, обход через Bash не ищи.
 
 ## 6. Статус
 

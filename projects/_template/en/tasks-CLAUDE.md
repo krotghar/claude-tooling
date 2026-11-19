@@ -1,6 +1,6 @@
 # <Project> Tasks — schema
 
-A wiki of the <Project> project's tasks: one document per task (a tracker ticket,
+A wiki of the <Project> project's tasks: one folder per task (a tracker ticket,
 e.g. `PROJ-123`). The goal is to answer "what was done, when and why" from the
 document, without reconstructing it from git and code, and to refer to a task by its number.
 
@@ -9,7 +9,7 @@ A sibling of the project wiki (`../wiki/`), organized the same way but about som
 | | `wiki/` | `tasks/` |
 |---|---|---|
 | About | how the project works: modules, patterns, component pitfalls | what was done for a specific task and why exactly that way |
-| Unit | topic, `pages/<slug>.md` | task, `pages/<number>.md` |
+| Unit | page, `pages/<slug>.md` | ticket, folder `<number or kebab-topic>/` |
 | State (status, what was verified) | not allowed — goes stale | allowed, always with a date |
 | Updated by | `/update-wiki` | `/save-task-context` |
 
@@ -20,9 +20,10 @@ absolute path. The "task number → document first" rule is in the global
 
 ## Structure
 
-- `pages/<number>.md` — the task document. File name = ticket number, so
-  a document is opened directly by number, without `index.md`. Work without a ticket —
-  slug `no-ticket-<kebab-topic>`.
+- `<number or kebab-topic>/` — the ticket folder: a directory whose name is the
+  task identifier (`PROJ-123`, `no-ticket-<kebab-topic>`). Inside is
+  `<number or kebab-topic>.md` — the task document; the file name matches the
+  folder name, so a document is opened directly by number, without `index.md`.
 - `index.md` — catalog: one line per task (link, ticket title verbatim,
   keywords, status, dates), newest first. Needed when no number is given ("that
   task about the notification settings screen"), and for an overview.
@@ -30,11 +31,30 @@ absolute path. The "task number → document first" rule is in the global
   `## [YYYY-MM-DD] save | <number> <ticket title verbatim>` + what
   was added. Answers "what was done on such-and-such date".
 
+## Working artifacts — in the same ticket folder
+
+Everything the task produced sits next to its document; the ticket folder is the
+only place — no parallel roots (`plans/`, `reports/`, `research/`, `handoff/`).
+Typical neighbours of the document:
+
+- `plan.md` — the plan (orchestration); an alternative one — `plan-alt1.md`;
+- `review.md`, `report.md`, `report.html` — review reports and artifact reports;
+- `research-*.md`, `investigation.md` — investigations and notes;
+- `bug-investigation/`, `device-check/`, `_playwright/` — subfolders for
+  evidence (screenshots, logs, command output);
+- `build.log` — build logs and other raw artifacts.
+
+File names are meaningful; the date lives in the file itself and in the document's
+"Sources" section. These files are not task documents and not `[[link]]`
+targets: they are referenced by plain text (path relative to the ticket folder).
+
 ## Search without a number
 
-The file name is just the number, so links don't break and the document opens directly.
-To search by words: `grep -ri '<word>' tasks/index.md`: a task's line contains the title and
-keywords. If nothing is found in the index, run the same grep over `tasks/pages/`.
+The folder name is the ticket number (or a kebab-topic), so links don't break and
+the document opens directly. To search by words: `grep -ri '<word>' tasks/index.md`:
+a task's line contains the title and keywords. If nothing is found in the index,
+run the same grep over the ticket folders (`grep -ri '<word>' tasks/*/`): it will
+find artifacts too, which helps just as much.
 
 **Keywords** — one line, 5–10 comma-separated: how the task would be described in
 words without knowing the number (synonyms for the screen or feature, style, remote-config key), plus
@@ -43,10 +63,16 @@ is service data; keep it minimal: not a description, not a retelling.
 
 ## Links
 
-`[[<number>]]` — a task document (`tasks/pages/`), `[[slug]]` — a project wiki
+The task document's slug in `tasks/` is the ticket folder name; only the file
+`tasks/<folder>/<folder>.md` counts as a slug. The project lint knows the same
+rule (`scripts/lint_links.sh tasks`).
+
+`[[<number>]]` — a task document (the ticket folder), `[[slug]]` — a project wiki
 page (`wiki/pages/`). The namespaces must not overlap: a task number
-(`PROJ-123`, `no-ticket-*`) never matches any wiki slug. A task without a document — plain text, not `[[...]]`, otherwise lint
-will report a broken link.
+(`PROJ-123`, `no-ticket-*`) never matches any wiki slug. A task without a
+document — plain text, not `[[...]]`, otherwise lint
+will report a broken link. Other files in the ticket folder (plans, reviews,
+reports) don't count as slugs and aren't checked as targets.
 
 ## Document format
 
@@ -92,7 +118,9 @@ What was verified and how (build, tests, regression, review, manually) — date 
 - YYYY-MM-DD — what was done in the session, briefly
 
 ## Sources
-- plan, handoff, mockup, review reports — with a date
+- plan, review reports, investigations — files in this same ticket folder
+  (`plan.md`, `review.md`, …), with a date
+- mockup (file + node), docs, the ticket — external links
 ````
 
 An empty section — "—", not made-up filler.

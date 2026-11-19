@@ -2,9 +2,11 @@
 #
 # PreToolUse-хук research-агентов (bug-investigator): Edit/Write/NotebookEdit
 # разрешены только внутри их воркtree <главный-воркtree>-research-* (рядом с главным
-# воркtree проекта) и во временных каталогах сессии: /tmp/claude-* (scratchpad
+# воркtree проекта), во временных каталогах сессии: /tmp/claude-* (scratchpad
 # Claude Code) и $TMPDIR, $TMP, $TEMP (туда пишут другие харнессы, а на Windows там же
-# лежит scratchpad). Остальной /tmp, основной checkout и всё прочее — блок.
+# лежит scratchpad) и в каталогах, переданных аргументами (например, вики задач
+# проекта, куда агент пишет отчёт — путь вписывает link.sh --init плейсхолдерами).
+# Остальной /tmp, основной checkout и всё прочее — блок.
 #
 # Без Python и jq: на Windows (Git Bash) их обычно нет.
 #
@@ -49,6 +51,10 @@ for tmp in "${TMPDIR:-}" "${TMP:-}" "${TEMP:-}"; do
   [ -n "$tmp" ] && [ -d "$(to_posix "$tmp")" ] || continue
   tmp="$(resolve "$(to_posix "$tmp")")"
   case "$path" in "${tmp%/}"/*) exit 0 ;; esac
+done
+for allow in "$@"; do
+  [ -n "$allow" ] || continue
+  case "$path" in "$(resolve "$(to_posix "$allow")")"/*) exit 0 ;; esac
 done
 if [ -n "$main" ]; then
   case "$path" in "$main"-research-*/*) exit 0 ;; esac

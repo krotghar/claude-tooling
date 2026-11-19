@@ -37,10 +37,10 @@ the decision in the same session, without asking. Asked "why do we have X", chec
 # Task by number: read its document first
 
 If the project has a task wiki (`<data>/projects/<project>/tasks/`), a task number in a
-message (`PROJ-123`, "123") is the signal to read `tasks/pages/<number>.md` first, not git
+message (`PROJ-123`, "123") is the signal to read `tasks/<number>/<number>.md` first, not git
 and code. If no number is given ("that task about the empty profile screen"), find the
 document with `grep -ri` over `tasks/index.md` (it holds the ticket title and keywords),
-and if that finds nothing, over `tasks/pages/`.
+and if that finds nothing, over the ticket folders (`grep -ri` over `tasks/*/`).
 
 - A question about "what, when, why we did it" is answered from the document; I go to git
   and code only if the document has no answer.

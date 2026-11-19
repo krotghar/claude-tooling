@@ -2,9 +2,11 @@
 #
 # PreToolUse hook for research agents (bug-investigator): Edit/Write/NotebookEdit
 # are allowed only inside their worktree <main-worktree>-research-* (next to the project's
-# main worktree) and in the session's temporary directories: /tmp/claude-* (Claude Code
+# main worktree), in the session's temporary directories: /tmp/claude-* (Claude Code
 # scratchpad) and $TMPDIR, $TMP, $TEMP (other harnesses write there, and on Windows the
-# scratchpad lives under them). The rest of /tmp, the main checkout and everything
+# scratchpad lives under them), and in the directories passed as arguments (e.g. the
+# project's task wiki, where the agent writes its report — the path is substituted by
+# link.sh --init from placeholders). The rest of /tmp, the main checkout and everything
 # else — blocked.
 #
 # No Python or jq: Windows (Git Bash) usually has neither.
@@ -50,6 +52,10 @@ for tmp in "${TMPDIR:-}" "${TMP:-}" "${TEMP:-}"; do
   [ -n "$tmp" ] && [ -d "$(to_posix "$tmp")" ] || continue
   tmp="$(resolve "$(to_posix "$tmp")")"
   case "$path" in "${tmp%/}"/*) exit 0 ;; esac
+done
+for allow in "$@"; do
+  [ -n "$allow" ] || continue
+  case "$path" in "$(resolve "$(to_posix "$allow")")"/*) exit 0 ;; esac
 done
 if [ -n "$main" ]; then
   case "$path" in "$main"-research-*/*) exit 0 ;; esac
