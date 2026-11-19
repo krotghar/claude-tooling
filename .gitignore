@@ -19,6 +19,7 @@
 !/home/settings.json
 !/home/ru/
 !/home/en/
+!/home/scripts/
 /projects/*
 !/projects/_template/
 /memory/*

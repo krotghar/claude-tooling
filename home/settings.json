@@ -11,5 +11,21 @@
   },
   "model": "opus[1m]",
   "effortLevel": "medium",
-  "enableWorkflows": true
+  "enableWorkflows": true,
+  "statusLine": {
+    "type": "command",
+    "command": "$HOME/.claude/scripts/statusline.sh"
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/scripts/name-session-hook.sh"
+          }
+        ]
+      }
+    ]
+  }
 }

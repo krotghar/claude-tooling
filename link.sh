@@ -216,6 +216,16 @@ link_home() {
     link_one "${skill_dir%/}" "$HOME/.claude/skills/$(basename "$skill_dir")"
   done
 
+  # Скрипты машинного уровня (статус-бар, хуки из live settings) — в ~/.claude/scripts.
+  if [[ -d "$TOOLING/home/scripts" ]]; then
+    mkdir -p "$HOME/.claude/scripts"
+    local script_file
+    for script_file in "$TOOLING/home/scripts"/*; do
+      [[ -f "$script_file" ]] || continue
+      link_one "$script_file" "$HOME/.claude/scripts/$(basename "$script_file")"
+    done
+  fi
+
   # Память проектов, чей главный воркtree лежит в $CLAUDE_PROJECTS (если задана).
   # Остальные проекты линкуют память сами, при `link.sh <воркtree>`.
   if [[ -n "$PROJECTS" && -d "$DATA/memory" ]]; then

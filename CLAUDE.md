@@ -22,7 +22,8 @@ owner's name and e-mail are fine (commit authorship, the own address in content)
   `UPDATE.md` — the same for an existing install, from any folder:
   `claude "Update https://github.com/krotghar/claude-tooling following its UPDATE.md"`.
 - `home/<lang>/CLAUDE.md` → `~/.claude/CLAUDE.md` — global instructions; `home/<lang>/skills/*`
-  (`onboard-project`, `tooling-review`) → `~/.claude/skills/`.
+  (`onboard-project`, `tooling-review`) → `~/.claude/skills/`; `home/scripts/*` (language-neutral:
+  status line, hook scripts) → `~/.claude/scripts/`, wired up in `home/settings.json` template.
 - Languages: `home/`, `projects/_template/`, `memory/_template/` have `ru/` and `en/` trees.
   RU is the source, EN its translation — change RU, update EN in the same commit with the same
   file set (EN memory has no `feedback_reply_in_russian`). `CLAUDE_TOOLING_LANG` (default `ru`) picks one.

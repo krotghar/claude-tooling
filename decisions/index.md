@@ -13,3 +13,7 @@
 
 ## Установка
 - [[installer]] — `INSTALL.md`, `UPDATE.md`, скиллы `onboard-project` и `tooling-review`
+
+## Машинные скрипты
+- [[statusline]] — статус-бар Claude Code: fish-префикс + имя сессии + занятость контекста (`home/scripts/statusline.sh` → `~/.claude/scripts/`)
+- [[name-session-hook]] — хук `UserPromptSubmit`: имя сессии по номеру задачи из первого промпта (`home/scripts/name-session-hook.sh` → `~/.claude/scripts/`)
