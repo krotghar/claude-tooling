@@ -27,6 +27,18 @@ short_cwd=$(printf '%s' "$cwd" | awk -v home="$HOME" '
 
 printf '\033[32m%s@%s\033[0m:\033[34m%s\033[0m' "$user" "$host" "$short_cwd"
 
+# Ветка git, если место запуска — репа (worktree/подкаталог тоже считаются);
+# detached HEAD показываем коротким хэшем.
+branch=$(git -C "$cwd" branch --show-current 2>/dev/null)
+if [ -n "$branch" ]; then
+  printf ' \033[36m(%s)\033[0m' "$branch"
+else
+  sha=$(git -C "$cwd" rev-parse --short=7 HEAD 2>/dev/null)
+  if [ -n "$sha" ]; then
+    printf ' \033[36m(%s)\033[0m' "$sha"
+  fi
+fi
+
 # Название сессии: кастомное (/rename, --name) или автозаголовок ИИ; может отсутствовать.
 session_name=$(printf '%s' "$input" | jq -r '.session_name // empty')
 if [ -n "$session_name" ]; then
