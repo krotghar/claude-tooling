@@ -77,7 +77,7 @@ Then read `TOOLING/UPDATE.md`: if it differs from what you were given, follow th
 Older versions had no `TOOLING/local.env`. If it's missing, find the current values rather
 than asking blindly: `CLAUDE_DATA` in the environment, or where `~/.claude/CLAUDE.personal.md`
 or the project memory links in `~/.claude/projects/*/memory` point; default
-`~/Documents/claude-config`. Confirm with the user, then write it (git ignores it):
+`~/Documents/ai-config`. Confirm with the user, then write it (git ignores it):
 
 ```bash
 CLAUDE_DATA="<data root>"

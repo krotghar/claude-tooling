@@ -10,7 +10,7 @@
 #
 # Настройки — переменные окружения или файл local.env рядом со скриптом (его пишет
 # инсталлятор, в git он не попадает):
-#   CLAUDE_DATA          корень данных (по умолчанию ~/Documents/claude-config)
+#   CLAUDE_DATA          корень данных (по умолчанию ~/Documents/ai-config)
 #   CLAUDE_TOOLING_LANG  язык шаблонов: ru | en (по умолчанию ru)
 #   CLAUDE_PROJECTS      папка, где лежат проекты, — необязательна. Если задана,
 #                        --home перелинковывает и память проектов оттуда; без неё
@@ -43,7 +43,7 @@ if [[ -f "$TOOLING/local.env" ]]; then
   CLAUDE_PROJECTS="${env_projects:-${CLAUDE_PROJECTS:-}}"
   CLAUDE_TOOLING_LANG="${env_lang:-${CLAUDE_TOOLING_LANG:-}}"
 fi
-DATA="${CLAUDE_DATA:-$HOME/Documents/claude-config}"
+DATA="${CLAUDE_DATA:-$HOME/Documents/ai-config}"
 PROJECTS="${CLAUDE_PROJECTS:-}"
 TOOLING_LANG="${CLAUDE_TOOLING_LANG:-ru}"
 

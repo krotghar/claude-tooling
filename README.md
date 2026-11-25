@@ -63,7 +63,7 @@ claude "Update https://github.com/krotghar/claude-tooling following its UPDATE.m
 | | Что внутри | Как обновлять |
 |---|---|---|
 | **Тулинг** — клон этого репозитория | общие правила, шаблон проекта, `link.sh` | `git pull` |
-| **Данные** — по умолчанию `~/Documents/claude-config` | настройки ваших проектов, их вики и документы задач, память Claude, личные правила | не в git; синхронизировать между машинами (iCloud, Syncthing) или нет — на ваш выбор |
+| **Данные** — по умолчанию `~/Documents/ai-config` | настройки ваших проектов, их вики и документы задач, память Claude, личные правила | не в git; синхронизировать между машинами (iCloud, Syncthing) или нет — на ваш выбор |
 
 В проекте появляются симлинки на данные: `CLAUDE.md`, `.claude/skills`,
 `.claude/agents`, `.claude/scripts`, `.claude/settings.json`. Они дописываются в
@@ -99,7 +99,7 @@ claude "Update https://github.com/krotghar/claude-tooling following its UPDATE.m
 
 | Переменная | Что задаёт | По умолчанию |
 |---|---|---|
-| `CLAUDE_DATA` | папка данных | `~/Documents/claude-config` |
+| `CLAUDE_DATA` | папка данных | `~/Documents/ai-config` |
 | `CLAUDE_TOOLING_LANG` | язык правил и шаблонов: `ru` или `en` | `ru` |
 | `CLAUDE_PROJECTS` | папка с проектами: если задана, `--home` заодно перелинковывает их память | — |
 

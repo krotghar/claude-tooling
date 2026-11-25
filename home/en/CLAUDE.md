@@ -12,7 +12,7 @@ don't move it silently.
 
 The harness lives in two roots. **Tooling** (git): `link.sh`, this file, project templates;
 its path is the target of the `~/.claude/CLAUDE.md` symlink (or of the `@…` import in it). **Data** (no git): the
-`$CLAUDE_DATA` directory, `~/Documents/claude-config` by default: per-project harness and
+`$CLAUDE_DATA` directory, `~/Documents/ai-config` by default: per-project harness and
 wiki, memory, per-project decision log. Below, `<data>` is the data root.
 
 The project's `CLAUDE.md` is a symlink to `<data>/projects/<project>/CLAUDE.md` (syncing data

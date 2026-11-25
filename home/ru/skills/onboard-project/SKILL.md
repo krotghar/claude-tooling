@@ -13,7 +13,7 @@ description: Подключить проект к тулингу — сущес�
 ```bash
 TOOLING="$(cd "$(dirname "$(readlink ~/.claude/skills/onboard-project)")/../../.." && pwd)"
 [ -f "$TOOLING/local.env" ] && . "$TOOLING/local.env"
-echo "tooling=$TOOLING data=${CLAUDE_DATA:-$HOME/Documents/claude-config} lang=${CLAUDE_TOOLING_LANG:-ru}"
+echo "tooling=$TOOLING data=${CLAUDE_DATA:-$HOME/Documents/ai-config} lang=${CLAUDE_TOOLING_LANG:-ru}"
 ```
 
 Скилл запущен не из симлинка (например, его читают из INSTALL.md) — тулинг это каталог,

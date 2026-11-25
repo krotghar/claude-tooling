@@ -11,7 +11,7 @@
 set -uo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
-DATA="${CLAUDE_DATA:-$HOME/Documents/claude-config}"
+DATA="${CLAUDE_DATA:-$HOME/Documents/ai-config}"
 GENERIC="$ROOT/hooks/leak-patterns"
 PERSONAL="$DATA/.leak-patterns"
 SELF_EXCLUDE="hooks/leak-patterns"

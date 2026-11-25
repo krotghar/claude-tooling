@@ -14,7 +14,7 @@ description: Разбор истории работы над проектом (�
 ```bash
 TOOLING="$(cd "$(dirname "$(readlink ~/.claude/skills/tooling-review)")/../../.." && pwd)"
 [ -f "$TOOLING/local.env" ] && . "$TOOLING/local.env"
-DATA="${CLAUDE_DATA:-$HOME/Documents/claude-config}"
+DATA="${CLAUDE_DATA:-$HOME/Documents/ai-config}"
 MAIN="$(git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /, ""); print; exit}')"
 PROJ="$(basename "$MAIN")"
 KEY="$(echo "$MAIN" | sed 's/[^A-Za-z0-9]/-/g')"

@@ -58,7 +58,7 @@ Already chosen at the start: it picks the folders under `home/`, `projects/_temp
 ## 3. Data root
 
 The tooling (this git repo) is kept apart from the **data**: per-project setup, wiki, task
-notes, memory. Ask where to keep the data folder. Default: `~/Documents/claude-config`. Any
+notes, memory. Ask where to keep the data folder. Default: `~/Documents/ai-config`. Any
 path works, including a synced folder; syncing is up to the user and out of scope here.
 
 Create it and write `TOOLING/local.env` (git ignores it):

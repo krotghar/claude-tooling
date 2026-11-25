@@ -1,11 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Edit(~/Documents/claude-config/**)",
+      "Edit(~/Documents/ai-config/**)",
       "Edit(<path to claude-tooling>/**)"
     ],
     "additionalDirectories": [
-      "~/Documents/claude-config",
+      "~/Documents/ai-config",
       "<path to claude-tooling>"
     ]
   },

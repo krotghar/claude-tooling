@@ -8,7 +8,7 @@ Claude Code tooling ("обвязка"): global rules, a stack-neutral project te
 (skills/agents/hook scripts), generic feedback memories, and `link.sh`, which deploys all of
 it via symlinks. This repo is the **tooling** root (git). Per-project content — project
 `CLAUDE.md`, skills, agents, wiki, tasks, memory, project decision log — lives in the
-**data** root, `$CLAUDE_DATA` (default `~/Documents/claude-config`), which has no git and is
+**data** root, `$CLAUDE_DATA` (default `~/Documents/ai-config`), which has no git and is
 synced (or not) however its owner likes.
 
 Keep this repo project-independent, not anonymous: nothing that identifies an employer, a

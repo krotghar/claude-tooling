@@ -14,7 +14,7 @@ that you haven't checked against the files.
 ```bash
 TOOLING="$(cd "$(dirname "$(readlink ~/.claude/skills/onboard-project)")/../../.." && pwd)"
 [ -f "$TOOLING/local.env" ] && . "$TOOLING/local.env"
-echo "tooling=$TOOLING data=${CLAUDE_DATA:-$HOME/Documents/claude-config} lang=${CLAUDE_TOOLING_LANG:-ru}"
+echo "tooling=$TOOLING data=${CLAUDE_DATA:-$HOME/Documents/ai-config} lang=${CLAUDE_TOOLING_LANG:-ru}"
 ```
 
 If the skill isn't run from a symlink (e.g. it's being read from INSTALL.md), the tooling is
