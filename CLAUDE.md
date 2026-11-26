@@ -34,7 +34,8 @@ owner's name and e-mail are fine (commit authorship, the own address in content)
   `<ToolingRoot>` are substituted on copy. Scripts that need the data root use
   `${CLAUDE_DATA:-<DataRoot>}`.
 - `decisions/` — decision log for the tooling itself (rules in `decisions/CLAUDE.md`). The
-  full pre-split history and per-project decisions are in `$CLAUDE_DATA/decisions/`.
+  full pre-split history and general decisions are in `$CLAUDE_DATA/decisions/`,
+  per-project ones in `$CLAUDE_DATA/projects/<project>/decisions/`.
 - `hooks/pre-commit`, `hooks/leak-patterns` — leak guard (see below).
 
 From the data root `link.sh` links `projects/<P>/*` into worktrees, `memory/<P>/` into

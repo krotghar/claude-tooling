@@ -28,11 +28,13 @@ what was done and why, what the pitfalls were and what is left: that is the task
 
 **Decisions about the harness itself go to the decision log, not to project memory.** Why
 an agent, skill, hook or script exists, why a given model/effort, what was rejected, when it
-changed: `decisions/` (rules are in its `CLAUDE.md`). There are two logs: tooling decisions
-(`link.sh`, this file, templates) go to the tooling's `decisions/`, decisions about a
-specific project's harness go to `<data>/decisions/`. When you change the harness, record
-the decision in the same session, without asking. Asked "why do we have X", check
-`decisions/index.md` in both first.
+changed: `decisions/` (rules are in its `CLAUDE.md`). There are three logs: tooling
+decisions (`link.sh`, this file, templates) go to the tooling's `decisions/`; decisions
+about one project's harness go to `<data>/projects/<project>/decisions/`; everything else
+(personal `home/`, data layout, anything not owned by one project) goes to the general
+`<data>/decisions/`. When you change the harness, record the decision in the same session,
+without asking. Asked "why do we have X", check `decisions/index.md` of the project's log
+first, then the general and tooling ones.
 
 # Task by number: read its document first
 
