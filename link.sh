@@ -353,6 +353,10 @@ link_worktree() {
     ensure_excluded "$worktree" "$rel"
   done
 
+  # .ai-tmp — каталог тяжёлых артефактов агентов (tmp в локальном ворктри,
+  # вне iCloud-синк; скилл finish-task его чистит) — только в exclude.
+  ensure_excluded "$worktree" ".ai-tmp"
+
   # Память — по реальному пути главного воркtree, где бы он ни лежал.
   if [[ -d "$DATA/memory/$proj_name" ]]; then
     link_one "$DATA/memory/$proj_name" "$HOME/.claude/projects/$(memory_key "$main_worktree")/memory"
