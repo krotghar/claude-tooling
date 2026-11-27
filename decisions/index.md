@@ -10,6 +10,7 @@
 
 ## Шаблон проекта
 - [[project-template]] — `projects/_template/<язык>`, `memory/_template/<язык>`, `link.sh --init`
+- [[orchestrate]] — скилл оркестрации: планировщик `general-purpose` с Write пишет `plan.md` сам
 
 ## Установка
 - [[installer]] — `INSTALL.md`, `UPDATE.md`, скиллы `onboard-project` и `tooling-review`

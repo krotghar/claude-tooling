@@ -74,9 +74,8 @@ ticket folder: `<DataRoot>/projects/<Project>/tasks/<number or kebab-topic>/`. T
 folder may not exist yet — create it; its layout and artifact examples are in
 `tasks/CLAUDE.md`. It holds:
 
-- `plan.md` — the plan (written by the orchestrator from the planner's output) + the
-  "User requirements" and "Decisions along the way" sections (written by the orchestrator)
-  + the "Execution log" section (written by the executor).
+- `plan.md` — the plan (the planner writes it itself, Write; "Decisions along the way" —
+  the orchestrator, "Execution log" — the executor).
 - `investigation.md` — the `bug-investigator` report (bugs only, phase 0.5).
 - `bug-investigation/` — its evidence (screenshots, logs, command output).
 - From there on — the same: verification reports, investigations and the rest of the
@@ -165,11 +164,12 @@ no `*-research-bug-*` should remain. If one does — remove it
 (`git worktree remove --force <path>` + `git worktree prune`) and mention it to the user.
 After TRIAGE, while no decision has been made, the agent's worktree stays — that's normal.
 
-## Phase 1. Plan (`Plan` subagent, `model: "opus"`)
+## Phase 1. Plan (`general-purpose` subagent, `model: "opus"`)
 
 The planner's prompt must contain: the full requirements, the user's requirements from the
 arguments verbatim, the user's answers from phase 0, the list of wiki pages/task document
-read (paths), for a bug — the path to `investigation.md` and the decisions from phase 0.5,
+read (paths), the absolute path to `<working directory>/plan.md`, for a bug — the path to
+`investigation.md` and the decisions from phase 0.5,
 and these requirements:
 
 - Check against the source of truth (the design via Figma MCP, real JSON/data model, a
@@ -180,7 +180,15 @@ and these requirements:
 - For a bug: rely on `investigation.md`, don't repeat the investigation — only verify what
   the fix is built on. Put the failing test from the report into the steps, and
   verification by launching after the fix into "Verification".
-- Return the plan strictly in the format below.
+- Write the final plan yourself into `<working directory>/plan.md` with the Write tool
+  (path from the prompt) — in the template format below. The "Decisions along the way"
+  section starts with the placeholder "Recorded by the orchestrator along the way.", the
+  "Execution log" — an empty heading. If the plan doesn't fit into a single message, don't
+  post it as chat text — append and edit the file in parts (`Edit`): the conversation is
+  not the delivery channel for the plan.
+- Return to the orchestrator only a short summary: status, number of steps, "Out of scope"
+  in one line, open questions (question → options → planner's recommendation) — and a
+  confirmation that the file is written.
 
 ```markdown
 # <number> <title>
@@ -201,7 +209,7 @@ Question → options → planner's recommendation.
 ## Execution log
 ```
 
-Then: write the answer into `plan.md`, show the user the plan (briefly: steps, out of
+Then: open the written `plan.md`, show the user the plan briefly (steps, out of
 scope, open questions). **Wait for approval.** Write answers to open questions and the
 user's edits into the plan yourself (small things) or hand them to the planner via
 `SendMessage` (a rework).
