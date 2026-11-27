@@ -29,7 +29,7 @@ Ask for the project path if it wasn't given. Then there are two branches.
 1. Is it a git repository? If not, explain that the tooling binds to a git worktree, and
    offer `git init` (only on "yes").
 2. If the harness already exists (`$CLAUDE_DATA/projects/<main worktree name>/`), just run
-   `"$TOOLING/link.sh" <path>` and go to step 3.
+   `"$TOOLING/link.sh" <path>` and go to step 4.
 3. Otherwise `"$TOOLING/link.sh" --init <path>`.
 4. If `link.sh` printed `tracked in git` or `skip (tracked in git)`, the project keeps its own
    `CLAUDE.md`, `AGENTS.md` or `.claude/...` in git, and `link.sh` leaves them alone. The
@@ -68,15 +68,26 @@ shows `->`). On Windows without Developer Mode `link.sh` uses workarounds, and t
 directories are junctions (also `->`), `CLAUDE.md` is one line `@<path in data>`,
 `settings.json` is a hardlink (`link.sh` prints `hardlink:`).
 
-## 3. Memories
+## 3. Co-author in commits
+
+Ask: **should Claude be added as a co-author of commits** (the `Co-Authored-By` trailer)?
+Usually a personal project is yes and a work one is no, but the user decides; don't guess from
+the name.
+
+- **Yes** — in `$CLAUDE_DATA/projects/<name>/scripts/commit.sh` set `COAUTHOR=yes`, and in the
+  `commit` line of the harness `CLAUDE.md` replace `` `Co-Authored-By` not allowed — `COAUTHOR=no` ``
+  with `` `Co-Authored-By` allowed (personal project) — as a trailer, `COAUTHOR=yes` ``.
+- **No** — leave it as in the template (`COAUTHOR=no`).
+
+## 4. Memories
 
 Show the list from `$TOOLING/memory/_template/<language>/MEMORY.md`, one line per memory,
 and ask which ones to take ("all" or "none" are fine). Copy the chosen ones into
 `$CLAUDE_DATA/memory/<name>/`, along with a `MEMORY.md` containing only their lines, then
 run `"$TOOLING/link.sh" <path>`; it links the memory using the project's real path.
 
-## 4. Summary
+## 5. Summary
 
-Briefly: where the harness is, what was filled in `CLAUDE.md`, which questions are still
+Briefly: where the harness is, what was filled in `CLAUDE.md`, whether a co-author is allowed in commits, which questions are still
 open, which memories are connected. Remind the user that a new Claude Code session in the
 project directory will pick up the harness, but the current one won't.

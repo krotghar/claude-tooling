@@ -53,7 +53,7 @@ If a task plan (`plan.md`) or task document is provided — compare the diff wit
 
 ## 7. Commit format (if reviewing an already made commit)
 
-Check that the title is a single line, with no `Co-Authored-By` block. There's no requirement for a bulleted list of changes in the commit body — a short title without a list is the norm.
+Check that the title is a single line. A `Co-Authored-By` trailer is fine only if the project's `CLAUDE.md` allows a co-author; otherwise there must be none. There's no requirement for a bulleted list of changes in the commit body — a short title without a list is the norm.
 
 ## 8. Report
 

@@ -28,7 +28,7 @@ echo "tooling=$TOOLING data=${CLAUDE_DATA:-$HOME/Documents/ai-config} lang=${CLA
 1. Это git-репозиторий? Нет — объясни, что тулинг привязывается к git-воркtree, и
    предложи `git init` (только по «да»).
 2. Обвязка уже есть (`$CLAUDE_DATA/projects/<имя главного воркtree>/`) — только
-   `"$TOOLING/link.sh" <путь>` и переходи к шагу 3.
+   `"$TOOLING/link.sh" <путь>` и переходи к шагу 4.
 3. Иначе `"$TOOLING/link.sh" --init <путь>`.
 4. `link.sh` написал `tracked in git` или `skip (tracked in git)` — проект сам держит в git
    свои `CLAUDE.md`, `AGENTS.md` или `.claude/...`, и их `link.sh` не трогает. Инструкции
@@ -65,15 +65,25 @@ echo "tooling=$TOOLING data=${CLAUDE_DATA:-$HOME/Documents/ai-config} lang=${CLA
 каталоги — junction (тоже `->`), `CLAUDE.md` — одна строка `@<путь в данных>`,
 `settings.json` — hardlink (в выводе `link.sh` — `hardlink:`).
 
-## 3. Памяти
+## 3. Соавтор в коммитах
+
+Спроси: **добавлять ли Claude в соавторы коммитов** (трейлер `Co-Authored-By`)? Обычно
+личный проект — да, рабочий — нет, но решает пользователь; не угадывай по названию.
+
+- **Да** — в `$CLAUDE_DATA/projects/<имя>/scripts/commit.sh` поставь `COAUTHOR=yes`, а в
+  строке про `commit` в `CLAUDE.md` обвязки замени `` `Co-Authored-By` запрещён — `COAUTHOR=no` ``
+  на `` `Co-Authored-By` разрешён (личный проект) — трейлером, `COAUTHOR=yes` ``.
+- **Нет** — оставь как в шаблоне (`COAUTHOR=no`).
+
+## 4. Памяти
 
 Покажи список из `$TOOLING/memory/_template/<язык>/MEMORY.md` — по строке на память —
 и спроси, какие взять (можно «все» или «ни одной»). Выбранные скопируй в
 `$CLAUDE_DATA/memory/<имя>/`, туда же `MEMORY.md` только с их строками, затем
 `"$TOOLING/link.sh" <путь>` — он слинкует память по реальному пути проекта.
 
-## 4. Итог
+## 5. Итог
 
-Коротко: где обвязка, что заполнено в `CLAUDE.md`, какие вопросы остались открытыми,
+Коротко: где обвязка, что заполнено в `CLAUDE.md`, разрешён ли соавтор в коммитах, какие вопросы остались открытыми,
 какие памяти подключены. Напомни, что новая сессия Claude Code в каталоге проекта
 подхватит обвязку, а текущая — нет.

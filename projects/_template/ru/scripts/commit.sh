@@ -4,18 +4,22 @@
 # `git commit`, чтобы не полагаться на то, что модель каждый раз вспомнит
 # правила из CLAUDE.md/памяти:
 #   - заголовок однострочный (без маркированного списка изменений под ним)
-#   - без "Co-Authored-By"
+#   - "Co-Authored-By" не в заголовке; трейлером из второго аргумента — только при COAUTHOR=yes
 #
 # Префикс задачи (`PROJ-123 ...`) скрипт не требует — это конвенция проекта
 # из CLAUDE.md. Нужна жёсткая проверка — допиши её здесь в самом проекте.
 #
 # Использование:
-#   .claude/scripts/commit.sh "PROJ-123 Fix login crash on guest flow"
+#   .claude/scripts/commit.sh "PROJ-123 Fix login crash on guest flow" ["Name <noreply@anthropic.com>"]
 #
 set -euo pipefail
 
-if [[ $# -ne 1 ]]; then
-  echo "Использование: commit.sh \"<заголовок>\"" >&2
+# Соавтор Claude в коммитах: yes — разрешён (личный проект), no — запрещён (рабочий).
+# Ставит onboard-project по ответу пользователя.
+COAUTHOR=no
+
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+  echo "Использование: commit.sh \"<заголовок>\" [\"<Co-Authored-By>\"]" >&2
   exit 1
 fi
 
@@ -27,8 +31,16 @@ if [[ "$TITLE" == *$'\n'* ]]; then
 fi
 
 if [[ "$TITLE" == *"Co-Authored-By"* ]]; then
-  echo "Отклонено: 'Co-Authored-By' запрещён в коммитах этого репозитория." >&2
+  echo "Отклонено: 'Co-Authored-By' — не в заголовок." >&2
   exit 1
 fi
 
-git commit -m "$TITLE"
+if [[ $# -eq 2 ]]; then
+  if [[ "$COAUTHOR" != yes ]]; then
+    echo "Отклонено: 'Co-Authored-By' запрещён в коммитах этого репозитория (COAUTHOR=no)." >&2
+    exit 1
+  fi
+  git commit -m "$TITLE" --trailer "Co-Authored-By: $2"
+else
+  git commit -m "$TITLE"
+fi

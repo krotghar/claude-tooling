@@ -80,3 +80,6 @@ ru и en; `[[project-template]]` не касался.
 
 ## [2026-11-26] knowledge-routing | журналов решений три: тулинг, общий в данных, по проекту
 Глобальный `home/{ru,en}/CLAUDE.md`, `CLAUDE.md`, схема и каталог журнала указывают на `$CLAUDE_DATA/projects/<проект>/decisions/` для проектных решений.
+
+## [2026-11-27] project-template | соавтор в коммитах — `COAUTHOR` в `commit.sh`, вопрос в `onboard-project`
+Шаблон `commit.sh` пишет `Co-Authored-By` трейлером только при `COAUTHOR=yes` (дефолт `no`); скилл `commit` и ревьюер смотрят на `CLAUDE.md` проекта; `onboard-project` спрашивает пользователя (новый шаг 3).

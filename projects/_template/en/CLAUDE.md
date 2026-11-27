@@ -36,7 +36,7 @@ what to run only with permission (long, heavy, or side-effecting commands)>
   - `orchestrate` — plan → execute → verify with subagents for a task;
   - `check` — user-invoked `/check`: `verifier` and `reviewer` in parallel;
   - `diff-review` — inline review of the current diff, report format in `skills/diff-review/report-format.md`;
-  - `commit` — user-invoked `/commit`: commit via `scripts/commit.sh` (one-line title, no list, no `Co-Authored-By`);
+  - `commit` — user-invoked `/commit`: commit via `scripts/commit.sh` (one-line title, no list; `Co-Authored-By` not allowed — `COAUTHOR=no`);
   - `save-task-context` — task document in the task wiki (Claude may invoke it on its own at the end of a session);
   - `update-wiki` — ingest what was learned into the project wiki (Claude may invoke it on its own at the end of a session);
   - `unit-tests` — test standards; stack-specific libraries are added in the project.

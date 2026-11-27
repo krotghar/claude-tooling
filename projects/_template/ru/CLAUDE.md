@@ -36,7 +36,7 @@
   - `orchestrate` — план → исполнение → проверка субагентами для задачи;
   - `check` — пользовательский `/check`: `verifier` и `reviewer` параллельно;
   - `diff-review` — inline-ревью текущего дифа, формат отчёта в `skills/diff-review/report-format.md`;
-  - `commit` — пользовательский `/commit`: коммит через `scripts/commit.sh` (заголовок одной строкой, без списка и без `Co-Authored-By`);
+  - `commit` — пользовательский `/commit`: коммит через `scripts/commit.sh` (заголовок одной строкой, без списка; `Co-Authored-By` запрещён — `COAUTHOR=no`);
   - `save-task-context` — документ задачи в вики задач (Claude может звать сам в конце сессии);
   - `update-wiki` — ingest узнанного в вики проекта (Claude может звать сам в конце сессии);
   - `unit-tests` — стандарты тестов, библиотеки под стек дописываются в проекте.
